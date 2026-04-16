@@ -1,0 +1,29 @@
+-- =============================================================================
+-- Travel Tracker — which SQL file should I run?
+-- =============================================================================
+--
+-- 1) Start PostgreSQL and open psql or pgAdmin Query Tool.
+--
+-- 2) If database `world` does not exist yet, while connected to `postgres` run:
+--        CREATE DATABASE world;
+--
+-- 3) Connect to database `world` (in psql: \c world).
+--
+-- 4) Run ONE of these files in full (open in editor, copy/paste into Query Tool):
+--
+--    • database/full-setup-sample-countries.sql
+--      → Use when you do NOT already have a `countries` table (new / empty DB).
+--
+--    • database/visited-countries-only.sql
+--      → Use when `countries` already exists (typical Udemy “world” import).
+--
+-- 5) Configure project `.env` (next to index.js):
+--        PGDATABASE=world
+--        PGUSER=postgres
+--        PGPASSWORD=your_password
+--        PGHOST=localhost
+--        PGPORT=5432
+--
+-- 6) Project folder:  npm start  →  http://localhost:3000
+--
+-- =============================================================================

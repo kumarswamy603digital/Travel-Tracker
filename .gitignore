@@ -1,0 +1,61 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+package-lock.json
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+_srv_err.txt
+_srv_out.txt
+
+# Database
+*.sql
+backup_*.sql
+!database/schema.sql
+!database/setup-travel-tracker.sql
+!database/full-setup-sample-countries.sql
+!database/visited-countries-only.sql
+
+# Build outputs
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Testing
+coverage/
+.nyc_output/
+
+# Process managers
+.pm2/
+
+# Docker
+docker-compose.override.yml
+
+# Backup files
+*.backup
+*.bak

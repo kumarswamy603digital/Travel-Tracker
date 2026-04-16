@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - Travel Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .navbar {
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 70px;
+    }
+
+    .navbar-brand {
+      font-size: 24px;
+      font-weight: 700;
+      color: #667eea;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .navbar-links a {
+      text-decoration: none;
+      color: #666;
+      font-weight: 600;
+      transition: color 0.3s;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .navbar-links a:hover {
+      color: #667eea;
+      background: #f0f0f0;
+    }
+
+    .navbar-user {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .welcome-section {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .welcome-section h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .welcome-section p {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      border-radius: 10px;
+      color: white;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .features-section {
+      margin-top: 30px;
+    }
+
+    .features-title {
+      font-size: 28px;
+      color: white;
+      margin-bottom: 20px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .feature-card p {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: #f5f5f5;
+    }
+
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e53e3e;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ai-features {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .ai-features h2 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .ai-card {
+      background: linear-gradient(135deg, #f5f5f5 0%, #e9e9e9 100%);
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .ai-card h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .ai-card p {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .feature-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 5px;
+      margin-bottom: 10px;
+    }
+
+    .section {
+      margin-top: 40px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 30px;
+      color: white;
+      margin-top: 50px;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .navbar-content {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 15px 20px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ai-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome-section {
+        padding: 20px;
+      }
+
+      .welcome-section h1 {
+        font-size: 24px;
+      }
+
+      .features-title {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <a href="/" class="navbar-brand">🌍 Travel Tracker</a>
+      <div class="navbar-links">
+        <a href="/">Track Countries</a>
+        <a href="/travel-guide">Explore Destinations</a>
+        <a href="#features">Features</a>
+      </div>
+      <div class="navbar-user">
+        <div class="user-avatar"><%= username.charAt(0).toUpperCase() %></div>
+        <div style="display: flex; flex-direction: column; font-size: 13px;">
+          <strong><%= username %></strong>
+          <small style="color: #666;"><%= email %></small>
+        </div>
+        <a href="/logout" class="btn btn-secondary" style="padding: 8px 16px; font-size: 12px;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h1>Welcome back, <%= username %>! ✈️</h1>
+      <p>Explore the world, track your travels, and discover amazing destinations with AI-powered insights.</p>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">2</div>
+          <div class="stat-label">Countries Visited</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">195+</div>
+          <div class="stat-label">Countries to Explore</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">8+</div>
+          <div class="stat-label">Featured Destinations</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Possibilities</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Features Section -->
+    <div class="section" id="features">
+      <h2 class="features-title">Explore Your Dashboard</h2>
+      <div class="features-grid">
+        
+        <!-- Feature 1: Travel Tracker -->
+        <div class="feature-card">
+          <span class="feature-icon">🗺️</span>
+          <h3>Track Your Travels</h3>
+          <p>Mark the countries you've visited on an interactive world map. Keep a complete record of your travel adventures and share your journey with friends.</p>
+          <div class="btn-group">
+            <a href="/" class="btn">Go to Map</a>
+          </div>
+        </div>
+
+        <!-- Feature 2: Tourism Guide -->
+        <div class="feature-card">
+          <span class="feature-icon">🏖️</span>
+          <h3>Explore Destinations</h3>
+          <p>Discover detailed information about countries worldwide. Browse attractions, landmarks, and get personalized travel recommendations based on your interests.</p>
+          <div class="btn-group">
+            <a href="/travel-guide" class="btn">Explore Now</a>
+          </div>
+        </div>
+
+        <!-- Feature 3: AI Guide -->
+        <div class="feature-card">
+          <span class="feature-icon">🤖</span>
+          <h3>AI Travel Assistant</h3>
+          <p>Chat with our intelligent AI guide powered by advanced language models. Get instant answers, travel tips, and personalized recommendations for any destination.</p>
+          <div class="btn-group">
+            <a href="/travel-guide" class="btn">Chat with AI</a>
+          </div>
+        </div>
+
+        <!-- Feature 4: Voice Guide -->
+        <div class="feature-card">
+          <span class="feature-icon">🎵</span>
+          <h3>Voice Narration</h3>
+          <p>Listen to professional voice narration of travel guides and tourism information. Experience destinations through immersive audio descriptions in multiple voices.</p>
+          <div class="btn-group">
+            <a href="/travel-guide" class="btn">Listen Guide</a>
+          </div>
+        </div>
+
+        <!-- Feature 5: Image Gallery -->
+        <div class="feature-card">
+          <span class="feature-icon">📸</span>
+          <h3>Visual Gallery</h3>
+          <p>Browse high-quality photography of destinations worldwide. See stunning landscapes, landmarks, and cultural sites from professional photographers.</p>
+          <div class="btn-group">
+            <a href="/travel-guide" class="btn">View Gallery</a>
+          </div>
+        </div>
+
+        <!-- Feature 6: Trip Planning -->
+        <div class="feature-card">
+          <span class="feature-icon">📅</span>
+          <h3>Trip Planner</h3>
+          <p>Plan your perfect trip with our AI-powered itinerary generator. Get day-by-day schedules, budget estimates, and practical travel advice for any destination.</p>
+          <div class="btn-group">
+            <a href="/travel-guide" class="btn">Plan Trip</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AI Features Details -->
+    <div class="ai-features">
+      <h2>🚀 Advanced AI Features</h2>
+      
+      <div class="ai-grid">
+        
+        <!-- AI Guide Detail -->
+        <div class="ai-card">
+          <h4>🤖 Intelligent AI Guide</h4>
+          <span class="feature-badge">Powered by Ollama</span>
+          <p>Our advanced AI engine provides real-time answers about any destination. Ask about attractions, local customs, best times to visit, and get personalized suggestions.</p>
+          <p><strong>Features:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; font-size: 12px;">
+            <li>Real-time conversation</li>
+            <li>Context-aware responses</li>
+            <li>Travel planning assistance</li>
+            <li>Cultural insights</li>
+          </ul>
+        </div>
+
+        <!-- Voice Guide Detail -->
+        <div class="ai-card">
+          <h4>🎵 Professional Voice Narration</h4>
+          <span class="feature-badge">By ElevenLabs</span>
+          <p>Listen to high-quality, natural-sounding narration of travel guides. Available in multiple voices and languages for a truly immersive experience.</p>
+          <p><strong>Features:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; font-size: 12px;">
+            <li>Multiple voice options</li>
+            <li>Natural pronunciation</li>
+            <li>Language support</li>
+            <li>Downloadable audio</li>
+          </ul>
+        </div>
+
+        <!-- Image Service Detail -->
+        <div class="ai-card">
+          <h4>📸 Smart Image Search</h4>
+          <span class="feature-badge">From Unsplash</span>
+          <p>Discover stunning photography of destinations worldwide. High-resolution, royalty-free images help you visualize your next adventure.</p>
+          <p><strong>Features:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; font-size: 12px;">
+            <li>High-quality photos</li>
+            <li>Attraction-specific images</li>
+            <li>Seasonal galleries</li>
+            <li>Photographer credits</li>
+          </ul>
+        </div>
+
+        <!-- Trip Planning Detail -->
+        <div class="ai-card">
+          <h4>📅 Intelligent Trip Planning</h4>
+          <span class="feature-badge">AI-Powered</span>
+          <p>Create detailed multi-day itineraries tailored to your preferences. Get budget estimates, activity suggestions, and timing recommendations for the perfect trip.</p>
+          <p><strong>Features:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; font-size: 12px;">
+            <li>Customizable itineraries</li>
+            <li>Budget planning</li>
+            <li>Activity recommendations</li>
+            <li>Timing suggestions</li>
+          </ul>
+        </div>
+
+        <!-- Travel Tips Detail -->
+        <div class="ai-card">
+          <h4>📚 Curated Travel Tips</h4>
+          <span class="feature-badge">Expert Advice</span>
+          <p>Access comprehensive travel guides organized by category. Learn about packing, safety, local culture, dining, transportation, and more for any destination.</p>
+          <p><strong>Categories:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; font-size: 12px;">
+            <li>Packing guides</li>
+            <li>Safety information</li>
+            <li>Cultural insights</li>
+            <li>Dining & cuisine</li>
+          </ul>
+        </div>
+
+        <!-- Recommendations Detail -->
+        <div class="ai-card">
+          <h4>⭐ Smart Recommendations</h4>
+          <span class="feature-badge">Personalized</span>
+          <p>Get destination recommendations based on your budget, interests, and duration. Discover the perfect place for your next adventure tailored to your preferences.</p>
+          <p><strong>Customization:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; font-size: 12px;">
+            <li>Budget filtering</li>
+            <li>Interest matching</li>
+            <li>Duration planning</li>
+            <li>Season selection</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section">
+      <h2 class="features-title">Quick Actions</h2>
+      <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="/" class="btn">📍 Add Countries to Map</a>
+        <a href="/travel-guide" class="btn">🌍 Explore Destinations</a>
+        <a href="/travel-guide" class="btn">🎤 Listen to Guides</a>
+        <a href="/travel-guide" class="btn">💬 Chat with AI</a>
+        <a href="/travel-guide" class="btn">🗺️ Plan Your Trip</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>🌍 Travel Tracker © 2026 | Track your adventures, explore the world with AI insights</p>
+    <p>Powered by <strong>OpenAI, ElevenLabs, Unsplash & Ollama</strong></p>
+  </div>
+
+</body>
+</html>

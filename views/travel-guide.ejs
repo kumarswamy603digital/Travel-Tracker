@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Guide & Tourism</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <style>
+    :root {
+      --primary: #667eea;
+      --secondary: #764ba2;
+      --success: #48bb78;
+      --danger: #f56565;
+      --warning: #ed8936;
+      --info: #4299e1;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      color: var(--primary);
+      font-size: 28px;
+    }
+
+    .user-info {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e53e3e;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+    }
+
+    .sidebar {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    .country-select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .country-select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .quick-filters {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover {
+      background: #f0f0f0;
+      border-color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .main-area {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .country-header {
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 15px;
+    }
+
+    .country-header h2 {
+      margin: 0 0 10px 0;
+      color: var(--primary);
+    }
+
+    .country-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .info-item {
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 5px;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .gallery-item {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .gallery-item:hover {
+      transform: scale(1.05);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .attractions {
+      margin: 20px 0;
+    }
+
+    .attractions h3 {
+      color: var(--primary);
+      margin-top: 0;
+    }
+
+    .attraction-card {
+      background: #f9f9f9;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .attraction-name {
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .attraction-details {
+      font-size: 13px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .rating {
+      color: var(--warning);
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .tab:hover {
+      color: var(--primary);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .ai-chat {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .chat-messages {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .message {
+      margin: 8px 0;
+      padding: 8px 10px;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .message.user {
+      background: var(--primary);
+      color: white;
+      margin-left: 20px;
+      text-align: right;
+    }
+
+    .message.ai {
+      background: #e9ecef;
+      color: #333;
+      margin-right: 20px;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .chat-input button {
+      padding: 10px 15px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .chat-input button:hover {
+      background: var(--secondary);
+    }
+
+    .itinerary {
+      background: white;
+    }
+
+    .day-plan {
+      background: #f9f9f9;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 4px solid var(--info);
+    }
+
+    .day-plan h4 {
+      margin: 0 0 10px 0;
+      color: var(--info);
+    }
+
+    .voice-player {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    .voice-player audio {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .tips-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .tips-list li {
+      padding: 10px;
+      margin: 5px 0;
+      background: #f0f7ff;
+      border-left: 4px solid var(--info);
+      border-radius: 3px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: var(--primary);
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .error-message {
+      background: #fed7d7;
+      color: #742a2a;
+      padding: 12px;
+      border-radius: 5px;
+      margin: 10px 0;
+      border-left: 4px solid var(--danger);
+    }
+
+    .success-message {
+      background: #c6f6d5;
+      color: #22543d;
+      padding: 12px;
+      border-radius: 5px;
+      margin: 10px 0;
+      border-left: 4px solid var(--success);
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+
+      .country-info {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🌍 Travel Guide & Tourism</h1>
+      </div>
+      <div class="user-info">
+        <% if (user) { %>
+          <span>Welcome, <strong><%= user.username %></strong></span>
+          <a href="/logout" class="btn btn-danger">Logout</a>
+        <% } %>
+        <a href="/" class="btn btn-secondary">Back to Tracker</a>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <div class="sidebar">
+        <h2>🗺️ Destinations</h2>
+        <select class="country-select" id="countrySelect" onchange="loadCountry()">
+          <option value="">Select a country...</option>
+          <% countries.forEach(c => { %>
+            <option value="<%= c.code %>" <% if (selectedCountry === c.code) { %>selected<% } %>>
+              <%= c.name %> (<%= c.region %>)
+            </option>
+          <% }); %>
+        </select>
+
+        <h3 style="margin-top: 20px; color: var(--primary);">Quick Filters</h3>
+        <div class="quick-filters">
+          <button class="filter-btn" onclick="filterByInterest('adventure')">🏔️ Adventure</button>
+          <button class="filter-btn" onclick="filterByInterest('culture')">🎭 Cultural</button>
+          <button class="filter-btn" onclick="filterByInterest('beaches')">🏖️ Beaches</button>
+          <button class="filter-btn" onclick="filterByInterest('nature')">🌳 Nature</button>
+        </div>
+
+        <h3 style="margin-top: 20px; color: var(--primary);">Tools</h3>
+        <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openTripPlanner()">
+          📅 Plan Trip
+        </button>
+        <button class="btn btn-secondary" style="width: 100%;" onclick="openRecommendations()">
+          💡 Get Recommendations
+        </button>
+      </div>
+
+      <div class="main-area">
+        <% if (selectedCountryData) { %>
+          <div class="country-header">
+            <h2>📍 <%= selectedCountryData.name %></h2>
+            <div class="country-info">
+              <div class="info-item">
+                <div class="info-label">Capital</div>
+                <div><%= selectedCountryData.capital %></div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Region</div>
+                <div><%= selectedCountryData.region %></div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Language</div>
+                <div><%= selectedCountryData.language %></div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Currency</div>
+                <div><%= selectedCountryData.currency %></div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Best Time</div>
+                <div><%= selectedCountryData.bestTime %></div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Budget</div>
+                <div><%= selectedCountryData.avgBudget %></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab" onclick="switchTab('attractions')">Attractions</button>
+            <button class="tab" onclick="switchTab('ai-guide')">AI Guide</button>
+            <button class="tab" onclick="switchTab('voice')">Voice Tour</button>
+            <button class="tab" onclick="switchTab('tips')">Travel Tips</button>
+          </div>
+
+          <!-- Overview Tab -->
+          <div id="overview" class="tab-content active">
+            <p><strong>About <%= selectedCountryData.name %>:</strong></p>
+            <p><%= selectedCountryData.description %></p>
+
+            <h3>✨ Highlights</h3>
+            <ul>
+              <% selectedCountryData.highlights.forEach(h => { %>
+                <li><%= h %></li>
+              <% }); %>
+            </ul>
+
+            <h3>📸 Gallery</h3>
+            <div class="gallery">
+              <% images.slice(0, 4).forEach(img => { %>
+                <div class="gallery-item">
+                  <img src="<%= img.url %>" alt="<%= img.alt %>" title="by <%= img.photographer %>">
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <!-- Attractions Tab -->
+          <div id="attractions" class="tab-content">
+            <div class="attractions">
+              <% selectedCountryData.attractions.forEach(a => { %>
+                <div class="attraction-card">
+                  <div class="attraction-name"><%= a.name %></div>
+                  <div class="attraction-details">
+                    <div>📍 <%= a.city %> | Type: <%= a.type %></div>
+                    <div class="rating">⭐ Rating: <%= a.rating %>/5</div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+
+          <!-- AI Guide Tab -->
+          <div id="ai-guide" class="tab-content">
+            <div class="ai-chat">
+              <h3>💬 Ask AI Travel Guide</h3>
+              <div class="chat-messages" id="chatMessages"></div>
+              <div class="chat-input">
+                <input type="text" id="guideQuestion" placeholder="Ask about attractions, budget, activities...">
+                <button onclick="askAIGuide()">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Voice Tab -->
+          <div id="voice" class="tab-content">
+            <div class="voice-player">
+              <h3>🎙️ Voice Tour of <%= selectedCountryData.name %></h3>
+              <p>Listen to an audio guide about the country's highlights and attractions.</p>
+              <button class="btn btn-primary" onclick="generateVoiceTour()">🔊 Generate Voice Tour</button>
+              <audio id="voiceAudio" controls style="display: none; margin-top: 10px;"></audio>
+              <div class="loading" id="voiceLoading">Generating voice tour...</div>
+            </div>
+          </div>
+
+          <!-- Tips Tab -->
+          <div id="tips" class="tab-content">
+            <h3>💡 Travel Tips</h3>
+            <div id="tipsContainer"></div>
+          </div>
+
+        <% } else { %>
+          <div style="text-align: center; padding: 40px; color: #999;">
+            <h2>🌎 Welcome to Travel Guide</h2>
+            <p>Select a country from the left sidebar to explore destinations, get recommendations, and plan your trip!</p>
+            <button class="btn btn-primary" onclick="loadCountry()">Explore Countries</button>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const selectedCountry = '<%= selectedCountry %>';
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+
+      // Load content when switching to tips
+      if (tabName === 'tips' && !document.getElementById('tipsContainer').innerHTML) {
+        loadTravelTips();
+      }
+    }
+
+    function loadCountry() {
+      const countryCode = document.getElementById('countrySelect').value;
+      if (countryCode) {
+        window.location.href = `/travel-guide?country=${countryCode}`;
+      }
+    }
+
+    async function askAIGuide() {
+      const question = document.getElementById('guideQuestion').value;
+      if (!question.trim()) return;
+
+      const chatMessages = document.getElementById('chatMessages');
+      
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'message user';
+      userMsg.textContent = question;
+      chatMessages.appendChild(userMsg);
+
+      try {
+        const response = await fetch('/api/guide/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message: question, 
+            country: selectedCountry 
+          })
+        });
+
+        const data = await response.json();
+        
+        // Add AI response
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'message ai';
+        aiMsg.textContent = data.response || 'Could not get response';
+        chatMessages.appendChild(aiMsg);
+
+        document.getElementById('guideQuestion').value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      } catch (error) {
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'message ai';
+        errorMsg.textContent = 'Error: Could not reach AI guide';
+        chatMessages.appendChild(errorMsg);
+      }
+    }
+
+    async function generateVoiceTour() {
+      const loading = document.getElementById('voiceLoading');
+      const audio = document.getElementById('voiceAudio');
+      
+      loading.classList.add('show');
+
+      try {
+        const response = await fetch('/api/voice-guide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: `Welcome to a tour of <%= selectedCountryData?.name || 'this destination' %>. This amazing country offers <%= selectedCountryData?.highlights?.slice(0, 3).join(', ') %>. Enjoy your visit!`,
+            country: selectedCountry
+          })
+        });
+
+        const data = await response.json();
+        if (data.audio) {
+          audio.src = data.audio;
+          audio.style.display = 'block';
+        }
+      } catch (error) {
+        alert('Error generating voice tour');
+      } finally {
+        loading.classList.remove('show');
+      }
+    }
+
+    async function loadTravelTips() {
+      try {
+        const response = await fetch(`/api/travel-tips?country=${selectedCountry}`);
+        const data = await response.json();
+        
+        const container = document.getElementById('tipsContainer');
+        if (data.tips) {
+          const tipsList = document.createElement('ul');
+          tipsList.className = 'tips-list';
+          data.tips.forEach(tip => {
+            const li = document.createElement('li');
+            li.textContent = tip;
+            tipsList.appendChild(li);
+          });
+          container.appendChild(tipsList);
+        }
+      } catch (error) {
+        document.getElementById('tipsContainer').innerHTML = '<div class="error-message">Could not load tips</div>';
+      }
+    }
+
+    function openTripPlanner() {
+      const days = prompt('How many days do you want to plan for?', '5');
+      if (days && selectedCountry) {
+        fetch('/api/trip-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            country: selectedCountry, 
+            duration: parseInt(days) 
+          })
+        })
+        .then(r => r.json())
+        .then(data => {
+          alert(`${days}-day itinerary created for ${data.country}! Check console for details.`);
+          console.log(data);
+        })
+        .catch(e => alert('Error creating trip plan'));
+      }
+    }
+
+    function openRecommendations() {
+      const budget = prompt('What\'s your budget? (low/medium/high)', 'medium');
+      if (budget) {
+        fetch('/api/recommendations?budget=' + budget)
+          .then(r => r.json())
+          .then(data => {
+            alert('Top recommendations based on your budget:\n' + 
+              data.recommendations.map(c => `${c.name} (${c.region})`).join('\n'));
+          });
+      }
+    }
+
+    function filterByInterest(interest) {
+      fetch('/api/recommendations?interests=' + interest)
+        .then(r => r.json())
+        .then(data => {
+          if (data.recommendations[0]) {
+            window.location.href = `/travel-guide?country=${data.recommendations[0].code}`;
+          }
+        });
+    }
+
+    // Load initial data if country selected
+    <% if (selectedCountry) { %>
+      // Tab switching is already set up
+    <% } %>
+  </script>
+</body>
+</html>

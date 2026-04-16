@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: travel-tracker-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: travel_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - travel-tracker-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: travel-tracker-app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: travel_tracker
+      PORT: 3000
+      LOG_LEVEL: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - travel-tracker-network
+    restart: unless-stopped
+
+networks:
+  travel-tracker-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
