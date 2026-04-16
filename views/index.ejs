@@ -24,7 +24,9 @@
       <p class="tagline">Log every stamp on your passport — one country at a time.</p>
       <% if (typeof session !== 'undefined' && session.username) { %>
       <div style="font-size: 13px; color: #8ab; margin-top: 5px;">
-        Welcome, <strong><%= session.username %></strong>
+        Welcome, <a href="/dashboard" style="color: #8ab; text-decoration: none; cursor: pointer; font-weight: 500; border-bottom: 1px dotted #8ab; transition: all 0.3s;"><strong><%= session.username %></strong></a>
+        &nbsp; | &nbsp;
+        <a href="/travel-guide" style="color: #8ab; text-decoration: none; cursor: pointer; font-weight: 500; margin: 0 8px;">Explore</a>
         &nbsp; | &nbsp;
         <a href="/logout" style="color: #8ab; text-decoration: none; cursor: pointer; font-weight: 500;">
           Sign out
@@ -409,6 +411,764 @@
   <footer class="map-footer">
     <p class="total-count"><span class="total-num"><%= total %></span> countries visited</p>
   </footer>
+
+  <!-- AI Tourist Guide Agent -->
+  <div class="ai-guide-panel" id="aiGuidePanel">
+    <div class="ai-guide-header">
+      <h3>🤖 AI Travel Guide</h3>
+      <button class="ai-minimize-btn" onclick="toggleAIGuide()">−</button>
+    </div>
+    <div class="ai-guide-content">
+      <div class="ai-guide-tabs">
+        <button class="ai-tab active" onclick="switchAITab('chat')">💬 Chat</button>
+        <button class="ai-tab" onclick="switchAITab('tips')">💡 Tips</button>
+        <button class="ai-tab" onclick="switchAITab('voice')">🎵 Voice</button>
+        <button class="ai-tab" onclick="switchAITab('explore')">🌍 Explore</button>
+      </div>
+
+      <!-- Chat Tab -->
+      <div id="chat-tab" class="ai-tab-content active">
+        <div class="ai-messages" id="aiMessages">
+          <div class="ai-message">
+            <p style="color: #333;">👋 Hi! I'm your AI Travel Guide. Ask me anything about destinations, attractions, travel tips, or get personalized recommendations!</p>
+          </div>
+        </div>
+        <div class="ai-input-group">
+          <input type="text" id="aiQuestion" placeholder="Ask about a country..." class="ai-input">
+          <button onclick="askAIGuide()" class="ai-send-btn">Send</button>
+        </div>
+      </div>
+
+      <!-- Tips Tab -->
+      <div id="tips-tab" class="ai-tab-content">
+        <div class="ai-tips-list">
+          <div class="ai-tip-item">
+            <strong>🏖️ Beach Destinations:</strong>
+            <p>Explore tropical islands like Thailand, Bali, and Maldives for pristine beaches.</p>
+          </div>
+          <div class="ai-tip-item">
+            <strong>🏔️ Mountain Adventures:</strong>
+            <p>Experience the Himalayas, Swiss Alps, or Rocky Mountains for hiking.</p>
+          </div>
+          <div class="ai-tip-item">
+            <strong>🎭 Cultural Experiences:</strong>
+            <p>Visit Japan, India, or Peru for rich cultural heritage and traditions.</p>
+          </div>
+          <div class="ai-tip-item">
+            <strong>🌳 Nature & Wildlife:</strong>
+            <p>Discover safaris in Africa, rainforests in South America, and natural parks.</p>
+          </div>
+        </div>
+        <button onclick="loadMoreTips()" class="ai-btn-secondary">Load More Tips</button>
+      </div>
+
+      <!-- Voice Tab -->
+      <div id="voice-tab" class="ai-tab-content">
+        <div style="text-align: center; padding: 10px;">
+          <p style="margin-bottom: 10px; font-size: 12px; color: #333;">🎙️ Speak with your AI Tourist Agent</p>
+          
+          <!-- Call Agent Button -->
+          <button id="callAgentBtn" onclick="toggleVoiceCall()" class="ai-btn-primary" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px;">
+            <span id="callBtnIcon">📞</span>
+            <span id="callBtnText">Call Tourist Agent</span>
+          </button>
+          
+          <!-- Voice Call Interface -->
+          <div id="voiceCallInterface" style="display: none; border: 2px solid #667eea; border-radius: 8px; padding: 12px; margin-bottom: 10px; background: #f8f9ff;">
+            <!-- Call Status -->
+            <div id="callStatus" style="text-align: center; margin-bottom: 8px; color: #667eea; font-weight: 600; font-size: 11px;">
+              🔴 READY TO CALL
+            </div>
+            
+            <!-- Microphone Status -->
+            <div id="micStatus" style="text-align: center; margin-bottom: 8px; padding: 8px; background: #f0f8ff; border-radius: 6px; color: #333; font-size: 11px;">
+              🎤 Tap to start speaking...
+            </div>
+            
+            <!-- Conversation History -->
+            <div id="voiceConversation" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px; margin-bottom: 8px; max-height: 200px; overflow-y: auto; font-size: 11px; color: #333; min-height: 60px;">
+              <p style="text-align: center; color: #999; margin: 0;">No messages yet</p>
+            </div>
+            
+            <!-- Voice Input/Output -->
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+              <button id="micBtn" onclick="toggleMicrophone()" class="ai-btn-primary" style="flex: 1; padding: 8px; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <span id="micBtnIcon">🎤</span>
+                <span id="micBtnText">Record</span>
+              </button>
+              <button id="stopCallBtn" onclick="endVoiceCall()" class="ai-btn-secondary" style="flex: 1; padding: 8px; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                ❌ <span>End Call</span>
+              </button>
+            </div>
+            
+            <!-- Audio Element for Voice Output -->
+            <audio id="agentAudio" style="width: 100%; margin-top: 8px; display: none;"></audio>
+            
+            <!-- Status Messages -->
+            <div id="voiceCallStatus" style="display: none; margin-top: 8px; padding: 6px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #ffc107; color: #333; font-size: 11px;"></div>
+            <div id="voiceCallError" style="display: none; margin-top: 8px; padding: 6px; background: #f8d7da; border-radius: 4px; border-left: 3px solid #dc3545; color: #333; font-size: 11px;"></div>
+          </div>
+          
+          <!-- Traditional Voice Guide -->
+          <div style="margin-top: 10px;">
+            <p style="margin-bottom: 8px; font-size: 11px; color: #666;">Or generate a voice guide:</p>
+            <button onclick="generateVoiceGuide()" class="ai-btn-secondary">🔊 Generate Voice Guide</button>
+          </div>
+          
+          <audio id="guideAudio" controls style="width: 100%; margin-top: 10px; display: none;"></audio>
+          <div id="voiceLoading" style="display: none; margin-top: 10px; color: #667eea; font-weight: 600; font-size: 12px;">⏳ Generating audio...</div>
+          <div id="voiceStatus" style="display: none; margin-top: 10px; padding: 8px; background: #f0f8ff; border-radius: 6px; border-left: 3px solid #667eea; color: #333; font-size: 12px;"></div>
+        </div>
+      </div>
+
+      <!-- Explore Tab -->
+      <div id="explore-tab" class="ai-tab-content">
+        <div style="padding: 10px;">
+          <p style="margin-bottom: 10px; font-size: 12px; color: #333;">🌍 Get personalized destination recommendations</p>
+          <select id="budgetSelect" class="ai-select" style="margin-bottom: 10px;">
+            <option value="">Select Budget</option>
+            <option value="low">Budget Friendly ($)</option>
+            <option value="medium">Mid-Range ($$)</option>
+            <option value="high">Luxury ($$$)</option>
+          </select>
+          <button onclick="getRecommendations()" class="ai-btn-primary">Get Recommendations</button>
+          <div id="recommendationsResult" style="margin-top: 10px; font-size: 12px; color: #333; background: #f0f8ff; padding: 8px; border-radius: 6px; border-left: 3px solid #667eea;"></div>
+        </div>
+      </div>
+
+      <div class="ai-footer">
+        <a href="/travel-guide" class="ai-footer-link">👉 Explore Full Travel Guide →</a>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .ai-guide-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      animation: slideIn 0.3s ease;
+      border: 2px solid #667eea;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ai-guide-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 15px;
+      border-radius: 10px 10px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ai-guide-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .ai-minimize-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .ai-minimize-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .ai-guide-content {
+      padding: 12px;
+      height: 380px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-guide-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .ai-tab {
+      padding: 6px;
+      border: none;
+      background: #f0f0f0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s;
+    }
+
+    .ai-tab:hover {
+      background: #e0e0e0;
+    }
+
+    .ai-tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .ai-tab-content {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+
+    .ai-tab-content.active {
+      display: block;
+    }
+
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .ai-message {
+      background: #f0f8ff;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #333;
+      border-left: 3px solid #667eea;
+    }
+
+    .ai-message p {
+      margin: 0;
+      color: #333;
+    }
+
+    .ai-user-message {
+      background: #667eea;
+      color: white;
+      margin-left: 10px;
+      border-left: none;
+    }
+
+    .ai-user-message p {
+      color: white;
+    }
+
+    .ai-input-group {
+      display: flex;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .ai-input {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .ai-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 4px rgba(102, 126, 234, 0.3);
+    }
+
+    .ai-send-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+
+    .ai-send-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .ai-tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .ai-tip-item {
+      background: #f0f8ff;
+      padding: 10px;
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+      font-size: 12px;
+      color: #333;
+    }
+
+    .ai-tip-item strong {
+      display: block;
+      color: #667eea;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .ai-tip-item p {
+      margin: 0;
+      color: #333;
+      line-height: 1.3;
+      font-size: 12px;
+    }
+
+    .ai-btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      width: 100%;
+      transition: transform 0.2s;
+    }
+
+    .ai-btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .ai-btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 1px solid #667eea;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+
+    .ai-btn-secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .ai-select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .ai-select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .ai-footer {
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      text-align: center;
+    }
+
+    .ai-footer-link {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .ai-footer-link:hover {
+      color: #764ba2;
+      transform: translateX(3px);
+    }
+
+    .ai-guide-panel.minimized {
+      width: auto;
+      height: auto;
+    }
+
+    .ai-guide-panel.minimized .ai-guide-content {
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .ai-guide-panel {
+        width: 280px;
+        height: 350px;
+      }
+
+      .ai-guide-content {
+        height: 300px;
+      }
+    }
+  </style>
+
+  <script>
+    function switchAITab(tabName) {
+      document.querySelectorAll('.ai-tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+      
+      document.getElementById(tabName + '-tab').classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function toggleAIGuide() {
+      const panel = document.getElementById('aiGuidePanel');
+      panel.classList.toggle('minimized');
+    }
+
+    async function askAIGuide() {
+      const question = document.getElementById('aiQuestion').value;
+      if (!question.trim()) return;
+
+      const messagesContainer = document.getElementById('aiMessages');
+      
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'ai-message ai-user-message';
+      userMsg.innerHTML = '<p>' + question + '</p>';
+      messagesContainer.appendChild(userMsg);
+
+      document.getElementById('aiQuestion').value = '';
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      try {
+        const response = await fetch('/api/guide/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: question })
+        });
+
+        const data = await response.json();
+        
+        // Add AI response
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'ai-message';
+        aiMsg.innerHTML = '<p>' + (data.response || 'Could not get response') + '</p>';
+        messagesContainer.appendChild(aiMsg);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      } catch (error) {
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'ai-message';
+        errorMsg.innerHTML = '<p>❌ Error: Could not connect to AI guide</p>';
+        messagesContainer.appendChild(errorMsg);
+      }
+    }
+
+    async function generateVoiceGuide() {
+      const loading = document.getElementById('voiceLoading');
+      const audio = document.getElementById('guideAudio');
+      const status = document.getElementById('voiceStatus');
+      
+      loading.style.display = 'block';
+      status.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/voice-guide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: 'Welcome to your AI travel guide. Explore amazing destinations, track your travels, and discover new cultures. Start by selecting a country to learn more!'
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success && data.audio) {
+          audio.src = data.audio;
+          audio.style.display = 'block';
+          status.style.display = 'none';
+          console.log('✅ Voice guide generated successfully');
+        } else {
+          status.innerHTML = `
+            <strong>⚠️ Voice Guide Unavailable</strong><br>
+            <span style="font-size: 13px; margin-top: 5px; display: block;">
+              ${data.error || 'Voice service is temporarily unavailable'}<br>
+              <span style="color: #666; margin-top: 5px; display: block;">
+                Try using the Chat tab for text-based recommendations, or configure ElevenLabs API for voice features.
+              </span>
+            </span>
+          `;
+          status.style.display = 'block';
+          audio.style.display = 'none';
+        }
+      } catch (error) {
+        status.innerHTML = `
+          <strong>❌ Error Generating Voice</strong><br>
+          <span style="font-size: 13px; margin-top: 5px; display: block;">
+            ${error.message}<br>
+            <span style="color: #666; margin-top: 5px; display: block;">
+              Please try again or use the Chat feature instead.
+            </span>
+          </span>
+        `;
+        status.style.display = 'block';
+        audio.style.display = 'none';
+        console.error('Voice generation error:', error);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    async function getRecommendations() {
+      const budget = document.getElementById('budgetSelect').value;
+      if (!budget) {
+        alert('Please select a budget');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/recommendations?budget=' + budget);
+        const data = await response.json();
+        
+        const resultDiv = document.getElementById('recommendationsResult');
+        if (data.recommendations && data.recommendations.length > 0) {
+          const recs = data.recommendations.slice(0, 3).map(c => c.name).join(', ');
+          resultDiv.innerHTML = '<strong style="color: #667eea;">✨ Recommended for ' + budget + ' budget:</strong><p style="margin: 5px 0 0 0; color: #333;">' + recs + '</p>';
+        } else {
+          resultDiv.innerHTML = '<p style="color: #333; margin: 0;">No recommendations available</p>';
+        }
+      } catch (error) {
+        document.getElementById('recommendationsResult').innerHTML = '<p style="color: #d32f2f; margin: 0;">Error loading recommendations</p>';
+      }
+    }
+
+    function loadMoreTips() {
+      alert('🎒 More travel tips:\n\n📱 Best travel apps: Google Maps, Booking.com, XE Currency Converter\n💳 Payment tips: Notify banks, carry multiple cards\n🎒 Packing: Less is more, wear layers\n🗽 Photography: Golden hour is best for photos\n🗣️ Language: Learn basic phrases in local language');
+    }
+
+    // Voice Call Variables
+    let voiceCallActive = false;
+    let recordingActive = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let voiceStream = null;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    // Initialize Speech Recognition
+    function initSpeechRecognition() {
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+          document.getElementById('micStatus').innerHTML = '🎤 Recording... speak now!';
+          document.getElementById('micStatus').style.background = '#fff3cd';
+          document.getElementById('micBtnIcon').textContent = '⏹️';
+          document.getElementById('micBtnText').textContent = 'Stop';
+          recordingActive = true;
+        };
+
+        recognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              // Send final transcript to agent
+              sendTextToAgent(transcript);
+            }
+          }
+          document.getElementById('micStatus').innerHTML = `🎤 You said: "${transcript}"`;
+        };
+
+        recognition.onerror = (event) => {
+          document.getElementById('voiceCallError').innerHTML = `❌ Microphone error: ${event.error}`;
+          document.getElementById('voiceCallError').style.display = 'block';
+          document.getElementById('micStatus').innerHTML = '🎤 Tap to start speaking...';
+          document.getElementById('micStatus').style.background = '#f0f8ff';
+          recordingActive = false;
+        };
+
+        recognition.onend = () => {
+          document.getElementById('micBtnIcon').textContent = '🎤';
+          document.getElementById('micBtnText').textContent = 'Record';
+          recordingActive = false;
+        };
+      }
+    }
+
+    // Toggle Voice Call
+    function toggleVoiceCall() {
+      const callInterface = document.getElementById('voiceCallInterface');
+      const callBtn = document.getElementById('callAgentBtn');
+      
+      if (!voiceCallActive) {
+        // Start call
+        voiceCallActive = true;
+        callInterface.style.display = 'block';
+        callBtn.style.background = '#d32f2f';
+        document.getElementById('callBtnIcon').textContent = '📞';
+        document.getElementById('callBtnText').textContent = 'Call Active';
+        document.getElementById('callStatus').innerHTML = '🟢 CALL ACTIVE - Agent Ready';
+        document.getElementById('callStatus').style.color = '#28a745';
+        
+        // Initialize speech recognition
+        if (!recognition) {
+          initSpeechRecognition();
+        }
+        
+        // Send greeting
+        sendTextToAgent('Hello! I would like to speak with the travel agent about travel recommendations.');
+      }
+    }
+
+    // Toggle Microphone
+    async function toggleMicrophone() {
+      if (!voiceCallActive) return;
+
+      if (!recordingActive) {
+        // Start recording
+        if (SpeechRecognition && recognition) {
+          recognition.start();
+        } else {
+          document.getElementById('voiceCallError').innerHTML = '❌ Microphone not supported in your browser. Please use Chrome, Edge, or Safari.';
+          document.getElementById('voiceCallError').style.display = 'block';
+        }
+      } else {
+        // Stop recording
+        if (recognition) {
+          recognition.stop();
+        }
+        document.getElementById('micBtnIcon').textContent = '🎤';
+        document.getElementById('micBtnText').textContent = 'Record';
+        recordingActive = false;
+      }
+    }
+
+    // Send Text to Agent
+    async function sendTextToAgent(userMessage) {
+      if (!userMessage.trim()) return;
+
+      try {
+        // Add user message to conversation
+        const conversation = document.getElementById('voiceConversation');
+        const userMsgDiv = document.createElement('div');
+        userMsgDiv.style.marginBottom = '6px';
+        userMsgDiv.innerHTML = '<strong style="color: #667eea;">You:</strong> <span style="color: #333;">' + userMessage + '</span>';
+        conversation.appendChild(userMsgDiv);
+        conversation.scrollTop = conversation.scrollHeight;
+
+        // Show status
+        document.getElementById('voiceCallStatus').innerHTML = '⏳ Waiting for agent response...';
+        document.getElementById('voiceCallStatus').style.display = 'block';
+
+        // Send to agent API
+        const response = await fetch('/api/voice-guide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: userMessage,
+            isConversation: true
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.audio) {
+          // Add agent response message
+          const agentMsgDiv = document.createElement('div');
+          agentMsgDiv.style.marginBottom = '6px';
+          agentMsgDiv.innerHTML = '<strong style="color: #28a745;">🤖 Agent:</strong> <span style="color: #333;">Response received</span>';
+          conversation.appendChild(agentMsgDiv);
+          conversation.scrollTop = conversation.scrollHeight;
+
+          // Play audio response
+          const audioElement = document.getElementById('agentAudio');
+          audioElement.src = data.audio;
+          audioElement.style.display = 'block';
+          audioElement.play().catch(err => console.log('Auto-play prevented:', err));
+
+          document.getElementById('voiceCallStatus').innerHTML = '🔊 Playing response...';
+          
+          // Resume microphone after audio plays
+          setTimeout(() => {
+            document.getElementById('voiceCallStatus').innerHTML = '🎤 Ready to listen. Tap to speak again.';
+            document.getElementById('micStatus').innerHTML = '🎤 Tap to start speaking...';
+            document.getElementById('micStatus').style.background = '#f0f8ff';
+          }, 2000);
+        } else {
+          document.getElementById('voiceCallError').innerHTML = `❌ ${data.error || 'Failed to get response from agent'}`;
+          document.getElementById('voiceCallError').style.display = 'block';
+          document.getElementById('voiceCallStatus').style.display = 'none';
+        }
+      } catch (error) {
+        document.getElementById('voiceCallError').innerHTML = `❌ Connection error: ${error.message}`;
+        document.getElementById('voiceCallError').style.display = 'block';
+        console.error('Voice call error:', error);
+      }
+    }
+
+    // End Voice Call
+    function endVoiceCall() {
+      voiceCallActive = false;
+      recordingActive = false;
+      
+      if (recognition) {
+        recognition.stop();
+      }
+
+      // Reset UI
+      const callInterface = document.getElementById('voiceCallInterface');
+      const callBtn = document.getElementById('callAgentBtn');
+      
+      callInterface.style.display = 'none';
+      callBtn.style.background = '';
+      document.getElementById('callBtnIcon').textContent = '📞';
+      document.getElementById('callBtnText').textContent = 'Call Tourist Agent';
+      
+      // Clear conversation
+      document.getElementById('voiceConversation').innerHTML = '<p style="text-align: center; color: #999; margin: 0;">No messages yet</p>';
+      document.getElementById('voiceCallStatus').style.display = 'none';
+      document.getElementById('voiceCallError').style.display = 'none';
+      document.getElementById('micStatus').innerHTML = '🎤 Tap to start speaking...';
+      document.getElementById('micStatus').style.background = '#f0f8ff';
+    }
+  </script>
+
   <script>
     const country_codes = <%- JSON.stringify(countries) %>;
     country_codes.forEach((code) => {

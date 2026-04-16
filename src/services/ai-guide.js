@@ -306,15 +306,67 @@ class AITourismGuide {
   /**
    * Create an itinerary
    */
-  createItinerary(countryCode, duration) {
+  createItinerary(countryCode, duration, preferences = {}) {
     try {
       const country = tourismDatabase.countries[countryCode];
       if (!country) {
         return { success: false, error: 'Country not found' };
       }
 
+      const { interests = '', budget = 'medium', pace = 'moderate', accommodation = 'comfort' } = preferences;
+      
+      // Parse interests into array
+      const userInterests = interests.split(',').map(i => i.trim().toLowerCase()).filter(i => i);
+
       const itinerary = [];
       const attractionsPerDay = Math.ceil(country.attractions.length / duration);
+
+      // Get activities based on interests
+      const getActivitiesForDay = (day) => {
+        const activities = [];
+        const paceMultiplier = pace === 'relaxed' ? 1 : pace === 'moderate' ? 2 : 3;
+        
+        // Select activities based on interests
+        if (userInterests.includes('adventure')) {
+          activities.push(...tourismDatabase.activities.adventure?.slice(0, 2) || ['Hiking', 'Outdoor sports']);
+        }
+        if (userInterests.includes('culture') || userInterests.includes('cultural')) {
+          activities.push(...tourismDatabase.activities.cultural?.slice(0, 2) || ['Museum visit', 'Local tours']);
+        }
+        if (userInterests.includes('food')) {
+          activities.push('Local food tour', 'Street food exploration');
+        }
+        if (userInterests.includes('nature')) {
+          activities.push('Nature walk', 'Wildlife spotting');
+        }
+        if (userInterests.includes('relaxation') || userInterests.includes('relax')) {
+          activities.push('Spa experience', 'Leisurely exploration');
+        }
+        if (userInterests.includes('beaches') || userInterests.includes('beach')) {
+          activities.push('Beach time', 'Water activities');
+        }
+        
+        // Default activities if no interests specified
+        if (activities.length === 0) {
+          activities.push(...tourismDatabase.activities.cultural?.slice(0, 2) || ['Local exploration', 'Sightseeing']);
+        }
+
+        return activities.slice(0, paceMultiplier);
+      };
+
+      // Get accommodation-specific tips
+      const accommodationTips = {
+        budget: 'Book budget hostels/hotels in advance. Check reviews on travel sites.',
+        comfort: 'Mid-range hotels offer good value. Book 2-3 weeks ahead for best rates.',
+        luxury: 'Reserve luxury hotels now for best availability and special amenities.'
+      };
+
+      // Get pace-specific tips
+      const paceTips = {
+        relaxed: 'Take your time to immerse in the culture. No rush!',
+        moderate: 'Balanced exploration - enjoy attractions without exhausting yourself.',
+        fast: 'Packed itinerary! Wear comfortable shoes and stay energized.'
+      };
 
       for (let day = 1; day <= duration; day++) {
         const startIdx = (day - 1) * attractionsPerDay;
@@ -323,13 +375,23 @@ class AITourismGuide {
           Math.min(startIdx + attractionsPerDay, country.attractions.length)
         );
 
+        let dayTip = '';
+        if (day === 1) {
+          dayTip = `Day 1: Arrive and settle in. ${accommodationTips[accommodation] || accommodationTips.comfort}`;
+        } else if (day === duration) {
+          dayTip = `Final day: Explore at leisure and prepare departure. ${paceTips[pace] || paceTips.moderate}`;
+        } else {
+          dayTip = paceTips[pace] || paceTips.moderate;
+        }
+
         itinerary.push({
           day: day,
-          attractions: dayAttractions,
-          activities: tourismDatabase.activities.cultural.slice(0, 2),
-          tips: day === 1
-            ? 'Arrive early and rest. Explore your accommodation area.'
-            : `Visit main attractions. Try local restaurants.`
+          attractions: dayAttractions.length > 0 ? dayAttractions : ['Explore the city', 'Visit local markets'],
+          activities: getActivitiesForDay(day),
+          tips: dayTip,
+          budget: budget,
+          pace: pace,
+          accommodation: accommodation
         });
       }
 
@@ -338,7 +400,13 @@ class AITourismGuide {
         country: country.name,
         duration: `${duration} days`,
         itinerary: itinerary,
-        budgetEstimate: country.avgBudget
+        budgetEstimate: country.avgBudget,
+        preferences: {
+          interests: userInterests,
+          budget: budget,
+          pace: pace,
+          accommodation: accommodation
+        }
       };
     } catch (error) {
       logger.error('Error creating itinerary', { error: error.message });

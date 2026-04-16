@@ -172,6 +172,31 @@ export class AuthController {
       res.status(500).json({ error: 'Failed to fetch profile' });
     }
   }
+
+  /**
+   * Render user dashboard
+   */
+  static async getDashboard(req, res) {
+    try {
+      if (!req.session.userId) {
+        return res.redirect('/login');
+      }
+
+      const user = await User.findById(req.session.userId);
+      if (!user) {
+        req.session.destroy();
+        return res.redirect('/login');
+      }
+
+      res.render('dashboard', {
+        username: user.username,
+        email: user.email,
+      });
+    } catch (error) {
+      logger.error('Error rendering dashboard', { error: error.message });
+      res.status(500).render('error', { error: 'Failed to load dashboard' });
+    }
+  }
 }
 
 export default AuthController;

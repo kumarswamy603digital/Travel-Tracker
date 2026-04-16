@@ -188,7 +188,7 @@ class TourismController {
    */
   static async createTripPlan(req, res) {
     try {
-      const { country, duration } = req.body;
+      const { country, duration, interests, budget, pace, accommodation } = req.body;
       const countryCode = country?.toUpperCase();
 
       if (!countryCode || !duration) {
@@ -198,8 +198,16 @@ class TourismController {
         });
       }
 
-      // Create itinerary
-      const itinerary = aiGuide.createItinerary(countryCode, parseInt(duration));
+      // Build preferences object
+      const preferences = {
+        interests: interests || '',
+        budget: budget || 'medium',
+        pace: pace || 'moderate',
+        accommodation: accommodation || 'comfort'
+      };
+
+      // Create personalized itinerary based on preferences
+      const itinerary = aiGuide.createItinerary(countryCode, parseInt(duration), preferences);
 
       if (!itinerary.success) {
         return res.status(400).json(itinerary);
@@ -215,7 +223,8 @@ class TourismController {
         country: itinerary.country,
         duration: itinerary.duration,
         budgetEstimate: itinerary.budgetEstimate,
-        images: images.images || []
+        images: images.images || [],
+        preferences: itinerary.preferences
       });
     } catch (error) {
       logger.error('Error in createTripPlan', { error: error.message });

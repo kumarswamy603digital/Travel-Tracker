@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Dashboard - Travel Tracker</title>
+  <title>Dashboard - Travel Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet">
@@ -128,6 +128,31 @@
       border-radius: 10px;
       color: white;
       text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      animation: slideUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stat-card:hover {
+      transform: scale(1.08);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
     }
 
     .stat-number {
@@ -161,25 +186,82 @@
       gap: 20px;
     }
 
+    .features-grid .feature-card {
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .features-grid .feature-card:nth-child(1) { animation-delay: 0.5s; }
+    .features-grid .feature-card:nth-child(2) { animation-delay: 0.6s; }
+    .features-grid .feature-card:nth-child(3) { animation-delay: 0.7s; }
+    .features-grid .feature-card:nth-child(4) { animation-delay: 0.8s; }
+    .features-grid .feature-card:nth-child(5) { animation-delay: 0.9s; }
+    .features-grid .feature-card:nth-child(6) { animation-delay: 1s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .feature-card {
       background: white;
       border-radius: 15px;
       padding: 30px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: -1;
     }
 
     .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(102, 126, 234, 0.25);
+      background: linear-gradient(135deg, #f8f9ff 0%, #f5f7ff 100%);
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.15) rotate(5deg);
     }
 
     .feature-icon {
       font-size: 48px;
       margin-bottom: 15px;
       display: block;
+      transition: transform 0.3s ease;
+      animation: bounce 2s infinite;
     }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .feature-card:nth-child(1) .feature-icon { animation-delay: 0s; }
+    .feature-card:nth-child(2) .feature-icon { animation-delay: 0.1s; }
+    .feature-card:nth-child(3) .feature-icon { animation-delay: 0.2s; }
+    .feature-card:nth-child(4) .feature-icon { animation-delay: 0.3s; }
+    .feature-card:nth-child(5) .feature-icon { animation-delay: 0.4s; }
+    .feature-card:nth-child(6) .feature-icon { animation-delay: 0.5s; }
 
     .feature-card h3 {
       font-size: 20px;
@@ -202,15 +284,37 @@
       text-decoration: none;
       border-radius: 8px;
       font-weight: 600;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
       border: none;
       cursor: pointer;
       font-size: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: left 0.3s;
+      z-index: -1;
+    }
+
+    .btn:hover::before {
+      left: 100%;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn:active {
+      transform: translateY(-1px);
     }
 
     .btn-secondary {
@@ -238,24 +342,22 @@
       flex-wrap: wrap;
     }
 
-    .ai-features {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      margin-top: 30px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-
     .ai-features h2 {
       font-size: 24px;
       color: #333;
       margin-bottom: 20px;
+      animation: slideInLeft 0.6s ease;
     }
 
-    .ai-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
 
     .ai-card {
@@ -263,12 +365,31 @@
       padding: 20px;
       border-radius: 10px;
       border-left: 4px solid #667eea;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .ai-card:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transform: translateX(10px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .ai-card:hover h4 {
+      color: white;
+    }
+
+    .ai-card:hover p,
+    .ai-card:hover ul {
+      color: rgba(255, 255, 255, 0.95);
     }
 
     .ai-card h4 {
       color: #667eea;
       margin-bottom: 10px;
       font-size: 16px;
+      transition: color 0.3s;
     }
 
     .ai-card p {
@@ -276,6 +397,11 @@
       font-size: 13px;
       line-height: 1.6;
       margin-bottom: 12px;
+      transition: color 0.3s;
+    }
+
+    .ai-card ul {
+      transition: color 0.3s;
     }
 
     .feature-badge {
@@ -339,6 +465,61 @@
         font-size: 22px;
       }
     }
+
+    .quick-actions-container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      animation: slideInUp 0.6s ease;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .quick-actions-container .btn {
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .ai-features {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      animation: slideInUp 0.7s ease;
+    }
+
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .ai-grid .ai-card {
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .ai-grid .ai-card:nth-child(1) { animation-delay: 1.1s; }
+    .ai-grid .ai-card:nth-child(2) { animation-delay: 1.2s; }
+    .ai-grid .ai-card:nth-child(3) { animation-delay: 1.3s; }
+    .ai-grid .ai-card:nth-child(4) { animation-delay: 1.4s; }
+    .ai-grid .ai-card:nth-child(5) { animation-delay: 1.5s; }
+    .ai-grid .ai-card:nth-child(6) { animation-delay: 1.6s; }
   </style>
 </head>
 <body>
@@ -552,13 +733,13 @@
 
     <!-- Quick Actions -->
     <div class="section">
-      <h2 class="features-title">Quick Actions</h2>
-      <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); display: flex; gap: 15px; flex-wrap: wrap;">
-        <a href="/" class="btn">📍 Add Countries to Map</a>
-        <a href="/travel-guide" class="btn">🌍 Explore Destinations</a>
-        <a href="/travel-guide" class="btn">🎤 Listen to Guides</a>
-        <a href="/travel-guide" class="btn">💬 Chat with AI</a>
-        <a href="/travel-guide" class="btn">🗺️ Plan Your Trip</a>
+      <h2 class="features-title">⚡ Quick Access</h2>
+      <div class="quick-actions-container">
+        <a href="/" class="btn">📍 Track Countries</a>
+        <a href="/travel-guide" class="btn">🌍 Explore Now</a>
+        <a href="/travel-guide" class="btn">🎤 Voice Guide</a>
+        <a href="/travel-guide" class="btn">💬 AI Chat</a>
+        <a href="/travel-guide" class="btn">🗺️ Plan Trip</a>
       </div>
     </div>
 

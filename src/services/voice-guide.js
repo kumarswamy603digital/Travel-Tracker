@@ -8,51 +8,41 @@ import { logger } from '../config/logger.js';
 
 class VoiceGuideService {
   constructor() {
+    // ElevenLabs Voice Agent Configuration
     this.apiKey = process.env.ELEVENLABS_API_KEY;
-    this.apiUrl = 'https://api.elevenlabs.io/v1';
-    this.voiceId = 'EXAVITQu4vr4xnSDxMaL'; // Default voice - Bella
+    this.agentId = process.env.VOICE_AGENT_ID;
+    this.agentEndpoint = process.env.VOICE_AGENT_ENDPOINT;
     this.voiceCache = new Map(); // Cache for generated audio
   }
 
   /**
-   * Get available voices
-   */
-  async getAvailableVoices() {
-    try {
-      const response = await axios.get(
-        `${this.apiUrl}/voices`,
-        { headers: { 'xi-api-key': this.apiKey } }
-      );
-
-      return {
-        success: true,
-        voices: response.data.voices.map(v => ({
-          id: v.voice_id,
-          name: v.name,
-          category: v.category
-        }))
-      };
-    } catch (error) {
-      logger.warn('Could not fetch ElevenLabs voices', { error: error.message });
-      // Return default voices if API fails
-      return {
-        success: true,
-        voices: [
-          { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella', category: 'professional' },
-          { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', category: 'professional' },
-          { id: 'AZnzlk1XvdvUBZXVr8i5', name: 'Domi', category: 'expressive' }
-        ]
-      };
-    }
-  }
-
-  /**
-   * Generate speech from text
+   * Generate speech from text using ElevenLabs Voice Agent
    */
   async textToSpeech(text, voiceId = null, language = 'en') {
     try {
+      // Check if API key is configured
+      if (!this.apiKey) {
+        logger.warn('ElevenLabs API key not configured');
+        return {
+          success: false,
+          error: 'Voice guide service unavailable',
+          message: 'ElevenLabs API is not configured. Set ELEVENLABS_API_KEY environment variable.',
+          fallback: true
+        };
+      }
+
+      if (!this.agentEndpoint) {
+        logger.warn('Voice agent endpoint not configured');
+        return {
+          success: false,
+          error: 'Voice agent not configured',
+          message: 'Set VOICE_AGENT_ENDPOINT environment variable.',
+          fallback: true
+        };
+      }
+
       // Check cache
-      const cacheKey = `${text.substring(0, 100)}_${voiceId || this.voiceId}`;
+      const cacheKey = `${text.substring(0, 100)}_${voiceId || 'agent'}`;
       if (this.voiceCache.has(cacheKey)) {
         logger.info('Returning cached voice');
         return {
@@ -62,35 +52,38 @@ class VoiceGuideService {
         };
       }
 
-      // Ensure text is not too long (ElevenLabs limit is 5000 characters)
+      // Ensure text is not too long
       if (text.length > 5000) {
         text = text.substring(0, 5000) + '...';
       }
 
+      logger.info('Sending text to ElevenLabs Voice Agent:', { textLength: text.length });
+
+      // Call ElevenLabs Agent API with conversation format
       const response = await axios.post(
-        `${this.apiUrl}/text-to-speech/${voiceId || this.voiceId}`,
+        this.agentEndpoint,
         {
-          text: text,
-          model_id: 'eleven_monolingual_v1',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75
-          }
+          user_message: text
+          // Agent will process and respond with voice
         },
         {
-          headers: { 'xi-api-key': this.apiKey },
+          headers: {
+            'xi-api-key': this.apiKey,
+            'Content-Type': 'application/json'
+          },
+          timeout: 30000,
           responseType: 'arraybuffer'
         }
       );
 
-      // Convert to base64 for easy transmission
+      // Convert response to base64 for easy transmission
       const audioBase64 = Buffer.from(response.data).toString('base64');
       const audioDataUrl = `data:audio/mpeg;base64,${audioBase64}`;
 
       // Cache the result
       this.voiceCache.set(cacheKey, audioDataUrl);
 
-      logger.info('Speech generated successfully', { textLength: text.length });
+      logger.info('Voice generated via ElevenLabs Agent');
 
       return {
         success: true,
@@ -98,13 +91,26 @@ class VoiceGuideService {
         mimeType: 'audio/mpeg'
       };
     } catch (error) {
-      logger.error('Error generating speech', { error: error.message });
+      logger.error('Error generating speech via agent', { error: error.message, code: error.code });
+
+      // Provide specific error messages
+      let errorMessage = 'Could not generate voice guide';
+      if (error.code === 'ECONNREFUSED') {
+        errorMessage = 'Cannot connect to voice service';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Invalid ElevenLabs API key or Agent ID';
+      } else if (error.response?.status === 429) {
+        errorMessage = 'Voice service rate limit exceeded';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Voice agent not found';
+      }
 
       // Return fallback response
       return {
         success: false,
-        error: 'Could not generate voice guide',
-        message: 'Please try again later'
+        error: errorMessage,
+        message: 'Please try again later or check your API configuration',
+        fallback: true
       };
     }
   }

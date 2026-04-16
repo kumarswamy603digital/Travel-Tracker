@@ -21,6 +21,7 @@
       min-height: 100vh;
       margin: 0;
       padding: 20px;
+      color: #333;
     }
 
     .container {
@@ -175,18 +176,24 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       font-size: 13px;
-      color: #666;
+      color: #333;
     }
 
     .info-item {
       padding: 8px;
       background: #f9f9f9;
       border-radius: 5px;
+      color: #333;
     }
 
     .info-label {
       font-weight: 600;
       color: var(--primary);
+    }
+
+    .info-item > div:last-child {
+      color: #333;
+      font-weight: 500;
     }
 
     .gallery {
@@ -238,7 +245,7 @@
 
     .attraction-details {
       font-size: 13px;
-      color: #666;
+      color: #333;
       margin-top: 5px;
     }
 
@@ -282,6 +289,27 @@
 
     .tab-content.active {
       display: block;
+    }
+
+    .tab-content p {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .tab-content h3 {
+      color: #333;
+      margin-top: 15px;
+    }
+
+    .tab-content ul {
+      color: #333;
+    }
+
+    .tab-content li {
+      color: #333;
+      margin: 5px 0;
+      font-size: 13px;
     }
 
     .ai-chat {
@@ -388,6 +416,8 @@
       background: #f0f7ff;
       border-left: 4px solid var(--info);
       border-radius: 3px;
+      color: #333;
+      font-size: 13px;
     }
 
     .loading {
@@ -576,9 +606,14 @@
             <div class="voice-player">
               <h3>🎙️ Voice Tour of <%= selectedCountryData.name %></h3>
               <p>Listen to an audio guide about the country's highlights and attractions.</p>
-              <button class="btn btn-primary" onclick="generateVoiceTour()">🔊 Generate Voice Tour</button>
-              <audio id="voiceAudio" controls style="display: none; margin-top: 10px;"></audio>
-              <div class="loading" id="voiceLoading">Generating voice tour...</div>
+              <button class="btn btn-primary" onclick="generateVoiceTour()" style="width: 100%; margin-bottom: 15px;">🔊 Generate Voice Tour</button>
+              <audio id="voiceAudio" controls style="display: none; margin-top: 10px; width: 100%;"></audio>
+              <div class="loading" id="voiceLoading" style="display: none; background: #f0f8ff; border-left: 4px solid #667eea; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                <p style="margin: 0; color: #667eea; font-weight: 500;">⏳ Generating voice tour...</p>
+              </div>
+              <div id="voiceStatus" style="display: none; background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                <p id="voiceStatusText" style="margin: 0; color: #856404;"></p>
+              </div>
             </div>
           </div>
 
@@ -589,12 +624,79 @@
           </div>
 
         <% } else { %>
-          <div style="text-align: center; padding: 40px; color: #999;">
-            <h2>🌎 Welcome to Travel Guide</h2>
-            <p>Select a country from the left sidebar to explore destinations, get recommendations, and plan your trip!</p>
+          <div style="text-align: center; padding: 40px; color: #333;">
+            <h2 style="color: #333;">🌎 Welcome to Travel Guide</h2>
+            <p style="color: #666; font-size: 14px;">Select a country from the left sidebar to explore destinations, get recommendations, and plan your trip!</p>
             <button class="btn btn-primary" onclick="loadCountry()">Explore Countries</button>
           </div>
         <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roadmap Modal -->
+  <div id="roadmapModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; padding: 20px;" onclick="if(event.target.id === 'roadmapModal') closeRoadmap();">
+    <div style="background: white; max-width: 900px; margin: 20px auto; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);" onclick="event.stopPropagation();">
+      <!-- Close button -->
+      <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee;">
+        <h2 id="roadmapTitle" style="margin: 0; color: #333;">🗺️ Your Travel Roadmap</h2>
+        <button onclick="closeRoadmap()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999; transition: color 0.2s;" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'">✕</button>
+      </div>
+
+      <!-- Roadmap Content -->
+      <div id="roadmapContent" style="padding: 30px; max-height: 80vh; overflow-y: auto;">
+        <!-- Summary -->
+        <div id="roadmapSummary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px; margin-bottom: 30px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">📍 DESTINATION</div>
+              <div id="summaryCountry" style="font-size: 22px; font-weight: bold;">India</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">⏱️ DURATION</div>
+              <div id="summaryDuration" style="font-size: 22px; font-weight: bold;">5 Days</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">💰 BUDGET</div>
+              <div id="summaryBudget" style="font-size: 18px; font-weight: bold;">Medium</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">❤️ INTERESTS</div>
+              <div id="summaryInterests" style="font-size: 16px; font-weight: bold;">Adventure, Culture</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">🏃 PACE</div>
+              <div id="summaryPace" style="font-size: 18px; font-weight: bold;">Moderate</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">🏨 STAY</div>
+              <div id="summaryAccommodation" style="font-size: 18px; font-weight: bold;">Comfort</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Itinerary -->
+        <h3 style="color: #333; margin-top: 0; margin-bottom: 20px;">📅 Day-by-Day Itinerary</h3>
+        <div id="itineraryContainer"></div>
+
+        <!-- Travel Tips -->
+        <div style="background: #f0f8ff; border-left: 4px solid #667eea; padding: 20px; border-radius: 8px; margin-top: 30px;">
+          <h3 style="margin-top: 0; color: #333;">✈️ Essential Travel Tips</h3>
+          <ul style="color: #555; line-height: 1.8;">
+            <li>Pack light - you'll be moving around</li>
+            <li>Start early each day to maximize time</li>
+            <li>Try local restaurants and street food</li>
+            <li>Keep emergency contacts handy</li>
+            <li>Take breaks and stay hydrated</li>
+            <li>Book attractions in advance when possible</li>
+          </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 10px; margin-top: 30px; justify-content: flex-end;">
+          <button class="btn btn-secondary" onclick="downloadRoadmap()" style="cursor: pointer;">📥 Save Roadmap</button>
+          <button class="btn btn-primary" onclick="closeRoadmap()" style="cursor: pointer;">✓ Done</button>
+        </div>
       </div>
     </div>
   </div>
@@ -613,6 +715,93 @@
       if (tabName === 'tips' && !document.getElementById('tipsContainer').innerHTML) {
         loadTravelTips();
       }
+    }
+
+    function closeRoadmap() {
+      document.getElementById('roadmapModal').style.display = 'none';
+    }
+
+    function downloadRoadmap() {
+      const roadmapContent = document.getElementById('roadmapContent').innerText;
+      const element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(roadmapContent));
+      element.setAttribute('download', 'travel-roadmap.txt');
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      alert('✅ Roadmap saved as travel-roadmap.txt');
+    }
+
+    function displayRoadmap(data, preferences) {
+      // Update summary section
+      document.getElementById('summaryCountry').textContent = data.country || selectedCountry;
+      document.getElementById('summaryDuration').textContent = data.duration;
+      document.getElementById('summaryBudget').textContent = (preferences.budget || 'medium').charAt(0).toUpperCase() + (preferences.budget || 'medium').slice(1);
+      document.getElementById('summaryInterests').textContent = preferences.interests.join(', ') || 'General';
+      document.getElementById('summaryPace').textContent = (preferences.pace || 'moderate').charAt(0).toUpperCase() + (preferences.pace || 'moderate').slice(1);
+      document.getElementById('summaryAccommodation').textContent = (preferences.accommodation || 'comfort').charAt(0).toUpperCase() + (preferences.accommodation || 'comfort').slice(1);
+
+      // Build itinerary
+      let itineraryHTML = '';
+      if (data.itinerary && Array.isArray(data.itinerary)) {
+        data.itinerary.forEach((day, idx) => {
+          const dayNum = day.day || (idx + 1);
+          const isLastDay = dayNum === data.itinerary.length;
+          
+          itineraryHTML += `
+            <div style="background: white; border: 2px solid #667eea; border-radius: 12px; padding: 20px; margin-bottom: 15px; transition: transform 0.2s;">
+              <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-right: 15px;">
+                  ${dayNum}
+                </div>
+                <div>
+                  <h4 style="margin: 0; color: #333;">Day ${dayNum}${isLastDay ? ' (Final Day)' : ''}</h4>
+                  <p style="margin: 5px 0 0 0; color: #999; font-size: 12px;">Your adventure continues</p>
+                </div>
+              </div>
+          `;
+
+          if (day.attractions && Array.isArray(day.attractions) && day.attractions.length > 0) {
+            itineraryHTML += `
+              <div style="margin-bottom: 12px;">
+                <h5 style="color: #667eea; margin: 0 0 8px 0; font-size: 13px;">📍 MUST-VISIT ATTRACTIONS</h5>
+                <ul style="margin: 0; padding-left: 20px; color: #555;">
+            `;
+            day.attractions.forEach(attraction => {
+              itineraryHTML += `<li style="margin: 4px 0; color: #555;">${attraction}</li>`;
+            });
+            itineraryHTML += `</ul></div>`;
+          }
+
+          if (day.activities && Array.isArray(day.activities) && day.activities.length > 0) {
+            itineraryHTML += `
+              <div style="margin-bottom: 12px;">
+                <h5 style="color: #764ba2; margin: 0 0 8px 0; font-size: 13px;">🎯 RECOMMENDED ACTIVITIES</h5>
+                <ul style="margin: 0; padding-left: 20px; color: #555;">
+            `;
+            day.activities.forEach(activity => {
+              itineraryHTML += `<li style="margin: 4px 0; color: #555;">${activity}</li>`;
+            });
+            itineraryHTML += `</ul></div>`;
+          }
+
+          if (day.tips) {
+            itineraryHTML += `
+              <div style="background: #fff9e6; border-left: 3px solid #ffc107; padding: 12px; border-radius: 6px;">
+                <p style="margin: 0; color: #856404; font-size: 14px;">💡 ${day.tips}</p>
+              </div>
+            `;
+          }
+
+          itineraryHTML += `</div>`;
+        });
+      }
+
+      document.getElementById('itineraryContainer').innerHTML = itineraryHTML;
+
+      // Show modal
+      document.getElementById('roadmapModal').style.display = 'block';
     }
 
     function loadCountry() {
@@ -665,28 +854,64 @@
     async function generateVoiceTour() {
       const loading = document.getElementById('voiceLoading');
       const audio = document.getElementById('voiceAudio');
+      const status = document.getElementById('voiceStatus');
+      const statusText = document.getElementById('voiceStatusText');
       
-      loading.classList.add('show');
+      // Hide previous states
+      audio.style.display = 'none';
+      status.style.display = 'none';
+      
+      // Show loading
+      loading.style.display = 'block';
 
       try {
+        const countryName = '<%= selectedCountryData?.name || "this destination" %>';
+        const highlights = '<%= selectedCountryData?.highlights?.slice(0, 3).join(", ") || "amazing attractions" %>';
+        
+        const text = `Welcome to a tour of ${countryName}. This amazing country offers ${highlights}. We recommend visiting during the best time and experiencing the local culture. Enjoy your visit!`;
+
+        console.log('🎙️ Generating voice tour for:', countryName);
+
         const response = await fetch('/api/voice-guide', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            text: `Welcome to a tour of <%= selectedCountryData?.name || 'this destination' %>. This amazing country offers <%= selectedCountryData?.highlights?.slice(0, 3).join(', ') %>. Enjoy your visit!`,
+            text: text,
             country: selectedCountry
           })
         });
 
         const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Voice service unavailable');
+        }
+
         if (data.audio) {
           audio.src = data.audio;
           audio.style.display = 'block';
+          loading.style.display = 'none';
+          console.log('✅ Voice tour generated successfully');
+        } else {
+          throw new Error('No audio data received');
         }
       } catch (error) {
-        alert('Error generating voice tour');
-      } finally {
-        loading.classList.remove('show');
+        console.error('❌ Voice generation error:', error);
+        loading.style.display = 'none';
+        
+        status.style.display = 'block';
+        statusText.innerHTML = `
+          <strong>⚠️ Voice Guide Unavailable</strong><br>
+          <span style="font-size: 14px; margin-top: 8px; display: block;">
+            The voice generation service is currently unavailable. This requires ElevenLabs API configuration.<br><br>
+            <strong>Alternative Options:</strong>
+            <ul style="margin: 8px 0; padding-left: 20px;">
+              <li>Check the AI Guide tab for text-based information</li>
+              <li>Read the Travel Tips for recommendations</li>
+              <li>Contact support if you need voice assistance</li>
+            </ul>
+          </span>
+        `;
       }
     }
 
@@ -712,35 +937,165 @@
     }
 
     function openTripPlanner() {
-      const days = prompt('How many days do you want to plan for?', '5');
-      if (days && selectedCountry) {
-        fetch('/api/trip-plan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            country: selectedCountry, 
-            duration: parseInt(days) 
-          })
-        })
-        .then(r => r.json())
-        .then(data => {
-          alert(`${days}-day itinerary created for ${data.country}! Check console for details.`);
-          console.log(data);
-        })
-        .catch(e => alert('Error creating trip plan'));
+      if (!selectedCountry) {
+        alert('❌ Please select a country first to plan your trip');
+        return;
       }
+
+      // Collect user preferences
+      console.log('🗺️ Starting trip planning wizard...');
+
+      // Step 1: Ask about interests
+      const interestPrompt = 'What are your travel interests?\n\n(Select one or more - comma separated):\n\n' +
+        '• adventure - Hiking, sports, exploration\n' +
+        '• culture - Museums, history, local traditions\n' +
+        '• beaches - Coastal areas, water activities\n' +
+        '• nature - Parks, wildlife, landscapes\n' +
+        '• food - Local cuisine, food tours\n' +
+        '• relaxation - Spas, resorts, leisure\n\n' +
+        'Example: adventure, nature, food';
+      
+      const interests = prompt(interestPrompt, 'culture');
+      if (interests === null) return; // User cancelled
+
+      // Step 2: Ask about budget
+      const budgetPrompt = 'What is your budget level?\n\n' +
+        '• low - Budget-friendly ($-$$)\n' +
+        '• medium - Mid-range ($$-$$$)\n' +
+        '• high - Luxury ($$$$)\n\n' +
+        'Enter: low, medium, or high';
+      
+      const budget = prompt(budgetPrompt, 'medium');
+      if (budget === null) return;
+
+      if (budget !== 'low' && budget !== 'medium' && budget !== 'high') {
+        alert('❌ Please enter: low, medium, or high');
+        return;
+      }
+
+      // Step 3: Ask about travel pace
+      const pacePrompt = 'What is your travel pace?\n\n' +
+        '• relaxed - 1-2 attractions per day\n' +
+        '• moderate - 3-4 attractions per day\n' +
+        '• fast - 5+ attractions per day\n\n' +
+        'Enter: relaxed, moderate, or fast';
+      
+      const pace = prompt(pacePrompt, 'moderate');
+      if (pace === null) return;
+
+      if (pace !== 'relaxed' && pace !== 'moderate' && pace !== 'fast') {
+        alert('❌ Please enter: relaxed, moderate, or fast');
+        return;
+      }
+
+      // Step 4: Ask about accommodation preference
+      const accommodationPrompt = 'What type of accommodation?\n\n' +
+        '• budget - Hostels, budget hotels\n' +
+        '• comfort - Mid-range hotels\n' +
+        '• luxury - 5-star hotels, resorts\n\n' +
+        'Enter: budget, comfort, or luxury';
+      
+      const accommodation = prompt(accommodationPrompt, 'comfort');
+      if (accommodation === null) return;
+
+      // Step 5: Ask for number of days
+      const daysPrompt = 'How many days do you want to plan?\n\n(Enter 1-30)';
+      const days = prompt(daysPrompt, '5');
+      if (days === null) return;
+
+      if (!days || isNaN(parseInt(days)) || parseInt(days) < 1 || parseInt(days) > 30) {
+        alert('❌ Please enter a number between 1 and 30');
+        return;
+      }
+
+      const daysNum = parseInt(days);
+
+      console.log('🗺️ Trip preferences:', { country: selectedCountry, interests, budget, pace, accommodation, days: daysNum });
+
+      // Show loading state in modal
+      document.getElementById('roadmapModal').style.display = 'block';
+      document.getElementById('itineraryContainer').innerHTML = '<div style="text-align: center; padding: 40px; color: #667eea;"><p style="font-size: 18px;">✨ Creating your personalized roadmap...</p><p style="color: #999;">Please wait while we craft your perfect itinerary</p></div>';
+
+      // Create personalized trip plan
+      fetch('/api/trip-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          country: selectedCountry, 
+          duration: daysNum,
+          interests: interests,
+          budget: budget,
+          pace: pace,
+          accommodation: accommodation
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Server error: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('📍 Trip plan created:', data);
+        if (data.success || data.itinerary) {
+          const preferences = {
+            interests: interests.split(',').map(i => i.trim()).filter(i => i),
+            budget: budget,
+            pace: pace,
+            accommodation: accommodation
+          };
+          displayRoadmap(data, preferences);
+        } else {
+          alert('❌ Error: ' + (data.error || 'Could not create trip plan'));
+          closeRoadmap();
+        }
+      })
+      .catch(e => {
+        console.error('❌ Trip plan error:', e);
+        alert('❌ Error creating trip plan:\n' + e.message);
+        closeRoadmap();
+      });
     }
 
     function openRecommendations() {
-      const budget = prompt('What\'s your budget? (low/medium/high)', 'medium');
-      if (budget) {
-        fetch('/api/recommendations?budget=' + budget)
-          .then(r => r.json())
-          .then(data => {
-            alert('Top recommendations based on your budget:\n' + 
-              data.recommendations.map(c => `${c.name} (${c.region})`).join('\n'));
-          });
+      const budget = prompt('What\'s your budget level?\n\nlow = Budget-friendly ($-$$)\nmedium = Mid-range ($$-$$$)\nhigh = Luxury ($$$$)', 'medium');
+      
+      if (budget === null) return; // User cancelled
+
+      if (!budget || (budget !== 'low' && budget !== 'medium' && budget !== 'high')) {
+        alert('❌ Please select: low, medium, or high');
+        return;
       }
+
+      console.log('🌍 Getting recommendations for budget:', budget);
+
+      fetch('/api/recommendations?budget=' + encodeURIComponent(budget))
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            throw new Error('Server error: ' + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Recommendations data:', data);
+          if (data.recommendations && Array.isArray(data.recommendations) && data.recommendations.length > 0) {
+            let recommendations = '✨ Top Destinations for ' + budget.toUpperCase() + ' Budget:\n\n';
+            data.recommendations.slice(0, 5).forEach((country, idx) => {
+              recommendations += (idx + 1) + '. 🌍 ' + country.name;
+              if (country.region) recommendations += ' (' + country.region + ')';
+              if (country.avgBudget) recommendations += '\n   Budget: ' + country.avgBudget;
+              recommendations += '\n\n';
+            });
+            alert(recommendations);
+          } else {
+            alert('⚠️ No recommendations found. Please try again.');
+          }
+        })
+        .catch(e => {
+          console.error('❌ Recommendations error:', e);
+          alert('❌ Error getting recommendations:\n' + e.message);
+        });
     }
 
     function filterByInterest(interest) {
