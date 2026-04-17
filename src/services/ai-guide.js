@@ -23,11 +23,15 @@ class AITourismGuide {
       this.conversationHistory.set(userId, [
         {
           role: 'system',
-          content: `You are an expert travel guide and tourism advisor. 
-            You provide helpful, accurate information about countries, attractions, 
-            travel tips, cultural insights, and trip planning. 
-            Keep responses concise and engaging. 
-            Be friendly and enthusiastic about travel.`
+          content: `You are a friendly and enthusiastic travel companion! You love talking about destinations, 
+            sharing travel tips, and helping people plan amazing trips. 
+            You're casual, conversational, and genuinely excited about travel. 
+            Use natural language like a friend would - don't sound robotic or overly formal. 
+            Keep responses concise but engaging. 
+            Add casual expressions, friendly tone, and enthusiasm!
+            For example: "Oh, Paris is absolutely amazing! You'll love it there..." 
+            instead of "Paris is a famous destination with many attractions."
+            Be helpful, warm, and authentic in your responses.`
         }
       ]);
     }
@@ -125,61 +129,65 @@ class AITourismGuide {
     if (message.includes('best time') || message.includes('when')) {
       const country = tourismDatabase.countries[countryCode];
       if (country) {
-        response = `The best time to visit ${country.name} is ${country.bestTime}. ` +
-          `This period offers the most pleasant weather and the best experience for tourism.`;
+        response = `Oh, great question! The best time to visit ${country.name} is definitely ${country.bestTime}. 
+        That's when you'll get the most amazing weather and the best experience overall. You're gonna love it!`;
       }
     } else if (message.includes('what to do') || message.includes('activities')) {
       const country = tourismDatabase.countries[countryCode];
       if (country) {
-        response = `In ${country.name}, you can:
-        • Visit famous attractions: ${country.highlights.slice(0, 3).join(', ')}
-        • Explore local culture and cuisine
-        • Try adventure activities like hiking or water sports
-        • Visit museums and historical sites
-        
-        Popular attractions: ${country.attractions.map(a => a.name).join(', ')}`;
+        response = `So many amazing things to do in ${country.name}! Here's what I'd recommend:\n
+        • Don't miss: ${country.highlights.slice(0, 3).join(', ')} - seriously, these are incredible!\n
+        • Explore the local culture and try the amazing food\n
+        • If you're adventurous, try hiking or water sports\n
+        • Check out the museums and historical sites\n
+        Popular spots everyone loves: ${country.attractions.map(a => a.name).slice(0, 5).join(', ')}\n
+        You'll have an unforgettable time!`;
       }
     } else if (message.includes('budget') || message.includes('cost') || message.includes('expense')) {
       const country = tourismDatabase.countries[countryCode];
       if (country) {
-        response = `Daily budget for ${country.name}: ${country.avgBudget}\n\n` +
-          `Tips to save money:
-        • Eat at local restaurants
-        • Use public transport
-        • Book accommodations in advance
-        • Look for free attractions`;
+        response = `Perfect! For ${country.name}, you're looking at around ${country.avgBudget} per day.\n
+        Here are some money-saving tips:\n
+        • Eat at local restaurants - the food is way better and cheaper!\n
+        • Use public transport - it's super affordable\n
+        • Book your place early to get great deals\n
+        • Look for free attractions - there's usually tons!\n
+        You can definitely travel smart without breaking the bank!`;
       }
     } else if (message.includes('safety')) {
       const country = tourismDatabase.countries[countryCode];
       if (country) {
-        response = `Safety in ${country.name}: ${country.safety}\n\n` +
-          `General safety tips:
-        • Register with your embassy
-        • Keep valuables secure
-        • Follow local laws and customs
-        • Stay aware of your surroundings`;
+        response = `Good thinking! Safety in ${country.name} is ${country.safety}.\n
+        Here's what I always tell travelers:\n
+        • Let someone know where you're going\n
+        • Keep your valuables in a safe place\n
+        • Respect local customs and laws\n
+        • Stay aware of your surroundings\n
+        But honestly, with common sense, you'll be totally fine!`;
       }
     } else if (message.includes('packing') || message.includes('prepare')) {
-      response = `Here's what you should pack:\n\n` +
-        `• Light, comfortable clothing
-        • Universal power adapter
-        • Travel insurance documents
-        • Medications and first-aid supplies
-        • Comfortable walking shoes
-        • Sun protection (sunscreen, hat)
-        • Camera or smartphone`;
+      response = `Great, let me help you pack smart!\n
+        • Light, comfy clothes (trust me, you'll wear them)\n
+        • Universal power adapter - total lifesaver\n
+        • Travel insurance docs and your ID\n
+        • Any medications you need\n
+        • Comfortable walking shoes - you'll do tons of exploring!\n
+        • Sunscreen and a hat\n
+        • Your camera or phone to capture memories\n
+        You're all set for an amazing trip!`;
     } else if (message.includes('tip') || message.includes('advice')) {
-      response = tourismDatabase.travelTips.culture.join('\n• ');
+      response = `Here are my favorite travel tips:\n
+        ${tourismDatabase.travelTips.culture.slice(0, 3).join('\n')}\n
+        Trust me, these will make your trip so much better!`;
     } else {
-      response = `I'm your AI travel guide! I can help you with:
-        • Information about countries and attractions
-        • Travel tips and advice
-        • Budget planning
-        • Activity recommendations
-        • Packing suggestions
-        • Safety information
-        
-        What would you like to know?`;
+      response = `Hey! I'm your AI travel buddy! 🌍 I'm here to help with:\n
+        • Awesome facts about countries and attractions\n
+        • Real travel tips that actually work\n
+        • Budget planning so you can travel more\n
+        • Activity ideas that match your style\n
+        • Packing advice\n
+        • Safety info\n
+        What would you like to explore?`;
     }
 
     return {

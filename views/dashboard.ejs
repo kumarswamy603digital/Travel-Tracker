@@ -745,11 +745,560 @@
 
   </div>
 
+  <!-- Left Side Voice Agent Panel -->
+  <div id="voiceAgentPanel" style="position: fixed; left: 0; top: 70px; width: 320px; height: calc(100vh - 70px); background: white; box-shadow: 5px 0 20px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; z-index: 500; animation: slideInLeft 0.4s ease;">
+    
+    <!-- Panel Header -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid rgba(255,255,255,0.1);">
+      <h3 style="margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">🤖 AI Travel Guide</h3>
+      <button onclick="toggleVoicePanel()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">◯</button>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display: flex; border-bottom: 1px solid #e0e0e0; background: #f8f9fa;">
+      <button onclick="switchVoiceTab('tips')" class="voice-tab-btn active" style="flex: 1; padding: 12px 8px; background: none; border: none; cursor: pointer; font-weight: 600; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; font-size: 13px;">💡 Tips</button>
+      <button onclick="switchVoiceTab('voice')" class="voice-tab-btn" style="flex: 1; padding: 12px 8px; background: none; border: none; cursor: pointer; font-weight: 600; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; font-size: 13px;">🎵 Voice</button>
+      <button onclick="switchVoiceTab('explore')" class="voice-tab-btn" style="flex: 1; padding: 12px 8px; background: none; border: none; cursor: pointer; font-weight: 600; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; font-size: 13px;">🌍 Explore</button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div style="flex: 1; overflow-y: auto; padding: 15px;">
+      
+      <!-- Tips Tab -->
+      <div id="voiceTips" class="voice-tab-content" style="display: block;">
+        <div style="background: #f0f2f5; border-radius: 8px; padding: 15px;">
+          <h4 style="margin: 0 0 12px 0; color: #333;">Travel Tips</h4>
+          <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #555;">
+            <li>Check visa requirements before booking</li>
+            <li>Best time to visit varies by season</li>
+            <li>Local customs enhance your experience</li>
+            <li>Pack essentials based on climate</li>
+            <li>Budget planning saves money</li>
+            <li>Use local transportation when possible</li>
+            <li>Try authentic local cuisine</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Voice Tab -->
+      <div id="voiceVoice" class="voice-tab-content" style="display: none; height: 100%; display: flex; flex-direction: column;">
+        <!-- Call Status -->
+        <div id="voiceCallStatus" style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: center;">
+          <p style="margin: 0 0 5px 0; color: #2e7d32; font-weight: 700; font-size: 13px;">
+            <span id="callStatusDot" style="display: inline-block; width: 8px; height: 8px; background: #4caf50; border-radius: 50%; animation: pulse 2s infinite; margin-right: 8px;"></span>
+            <span id="callStatusText">CALL ACTIVE – Agent Ready</span>
+          </p>
+          <p style="margin: 0; color: #558b2f; font-size: 11px;">🎤 Tap to start speaking...</p>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="voiceError" style="background: #ffebee; border: 2px solid #f56565; border-radius: 8px; padding: 10px; display: none; margin-bottom: 12px;">
+          <p id="voiceErrorText" style="margin: 0; color: #c00; font-size: 12px; font-weight: 600;"></p>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="voiceConversation" style="flex: 1; background: white; border-radius: 8px; padding: 12px; margin-bottom: 12px; overflow-y: auto; border: 1px solid #e0e0e0;">
+          <div id="voiceNoMessages" style="text-align: center; color: #999; padding: 20px 10px; font-size: 12px;">
+            No messages yet. Click Record to start.
+          </div>
+          <div id="voiceCallMessages" style="display: none;"></div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+          <button onclick="startVoiceRecognition()" id="recordVoiceBtn" style="flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;">
+            🎤 Record
+          </button>
+          <button onclick="endVoiceConversation()" id="endVoiceBtn" style="flex: 1; background: white; color: #f56565; border: 2px solid #f56565; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;">
+            ✕ End Call
+          </button>
+        </div>
+
+        <!-- Status Message -->
+        <div id="voiceRecognitionStatus" style="background: #fff9e6; border: 1px solid #ffc107; border-radius: 6px; padding: 10px; text-align: center; display: none;">
+          <p id="voiceRecognitionStatusText" style="margin: 0; color: #856404; font-size: 11px; font-weight: 600;">Ready to listen. Tap to speak again.</p>
+        </div>
+
+        <!-- Explore Link -->
+        <div style="margin-top: 10px; text-align: center;">
+          <a href="/travel-guide" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 12px;">👉 Explore Full Travel Guide →</a>
+        </div>
+
+        <!-- Hidden audio element for playback -->
+        <audio id="voiceResponseAudio" style="display: none;"></audio>
+      </div>
+
+      <!-- Explore Tab -->
+      <div id="voiceExplore" class="voice-tab-content" style="display: none;">
+        <div style="background: #f0f2f5; border-radius: 8px; padding: 15px;">
+          <h4 style="margin: 0 0 12px 0; color: #333;">Generate Guide</h4>
+          
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #333; font-size: 12px;">Destination:</label>
+            <input id="destinationInput" type="text" placeholder="e.g., Paris..." style="width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; box-sizing: border-box;" />
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #333; font-size: 12px;">Topic:</label>
+            <textarea id="guideTopicInput" placeholder="What to know..." style="width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; min-height: 60px; box-sizing: border-box; resize: none; font-family: inherit;"></textarea>
+          </div>
+
+          <button onclick="generateVoiceGuide()" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">
+            🎤 Generate
+          </button>
+
+          <div id="generatedAudio" style="display: none; margin-top: 12px;">
+            <audio id="guideAudio" controls style="width: 100%; max-height: 40px;"></audio>
+          </div>
+
+          <div id="generateStatus" style="margin-top: 12px; padding: 10px; background: white; border-radius: 6px; display: none; border-left: 4px solid #667eea;">
+            <p id="generateStatusText" style="margin: 0; color: #667eea; font-size: 11px;"></p>
+          </div>
+        </div>
+        
+        <div style="margin-top: 15px; text-align: center; padding: 10px; background: #fff9e6; border-radius: 6px;">
+          <a href="/travel-guide" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 12px;">👉 Explore Full Travel Guide →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Slide-in animation -->
+  <style>
+    @keyframes slideInLeft {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+
   <!-- Footer -->
   <div class="footer">
     <p>🌍 Travel Tracker © 2026 | Track your adventures, explore the world with AI insights</p>
     <p>Powered by <strong>OpenAI, ElevenLabs, Unsplash & Ollama</strong></p>
   </div>
+
+  <script>
+    // Toggle voice panel
+    function toggleVoicePanel() {
+      const panel = document.getElementById('voiceAgentPanel');
+      if (panel.style.width === '0px') {
+        panel.style.width = '320px';
+      } else {
+        panel.style.width = '0px';
+      }
+    }
+
+    // Voice Agent Tab Functions
+    function switchVoiceTab(tab) {
+      // Hide all tabs
+      document.getElementById('voiceTips').style.display = 'none';
+      document.getElementById('voiceVoice').style.display = 'none';
+      document.getElementById('voiceExplore').style.display = 'none';
+
+      // Remove active class from all buttons
+      document.querySelectorAll('.voice-tab-btn').forEach(btn => {
+        btn.style.borderBottomColor = 'transparent';
+        btn.style.color = '#666';
+      });
+
+      // Show selected tab
+      const tabMap = {
+        'tips': 'voiceTips',
+        'voice': 'voiceVoice',
+        'explore': 'voiceExplore'
+      };
+
+      if (tabMap[tab]) {
+        document.getElementById(tabMap[tab]).style.display = 'block';
+      }
+
+      // Set active button style
+      if (event && event.target) {
+        event.target.style.borderBottomColor = '#667eea';
+        event.target.style.color = '#667eea';
+      }
+    }
+
+    // Voice Recognition Setup
+    let isVoiceCallActive = false;
+    let isListening = false;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    // Check browser support and initialize
+    if (SpeechRecognition) {
+      try {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = function() {
+          isListening = true;
+          console.log('Speech recognition started');
+          updateVoiceStatus('Listening...', '#667eea');
+          document.getElementById('recordVoiceBtn').style.background = '#f56565';
+          document.getElementById('recordVoiceBtn').innerText = '⏹ Stop';
+        };
+
+        recognition.onresult = function(event) {
+          console.log('Speech result received:', event.results);
+          const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join('');
+
+          console.log('Transcript:', transcript);
+
+          if (event.results[0].isFinal && transcript.trim()) {
+            isListening = false;
+            processUserVoiceInput(transcript);
+          }
+        };
+
+        recognition.onerror = function(event) {
+          console.error('Speech recognition error:', event.error);
+          isListening = false;
+          
+          let errorMsg = 'Microphone error: ' + event.error;
+          if (event.error === 'network') {
+            errorMsg = '⚠️ Network error. Check your connection.';
+          } else if (event.error === 'not-allowed') {
+            errorMsg = '⚠️ Microphone access denied. Allow access in browser settings.';
+          } else if (event.error === 'no-speech') {
+            errorMsg = '⚠️ No speech detected. Try again.';
+          }
+          
+          showVoiceError(errorMsg);
+          document.getElementById('recordVoiceBtn').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+          document.getElementById('recordVoiceBtn').innerText = '🎤 Record';
+        };
+
+        recognition.onend = function() {
+          console.log('Speech recognition ended');
+          isListening = false;
+          if (isVoiceCallActive) {
+            document.getElementById('recordVoiceBtn').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.getElementById('recordVoiceBtn').innerText = '🎤 Record';
+          }
+        };
+      } catch (error) {
+        console.error('Failed to initialize speech recognition:', error);
+      }
+    } else {
+      console.warn('Speech Recognition API not supported');
+    }
+
+    // Start voice recognition
+    async function startVoiceRecognition() {
+      if (!recognition) {
+        showVoiceError('⚠️ Speech recognition not supported in this browser. Use Chrome, Edge, or Safari.');
+        return;
+      }
+
+      if (!isVoiceCallActive) {
+        isVoiceCallActive = true;
+        // Clear previous messages
+        document.getElementById('voiceCallMessages').innerHTML = '';
+        document.getElementById('voiceNoMessages').style.display = 'none';
+        document.getElementById('voiceCallMessages').style.display = 'block';
+      }
+
+      // Clear error
+      document.getElementById('voiceError').style.display = 'none';
+
+      if (isListening) {
+        recognition.abort();
+        isListening = false;
+        document.getElementById('recordVoiceBtn').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        document.getElementById('recordVoiceBtn').innerText = '🎤 Record';
+        return;
+      }
+
+      try {
+        console.log('Starting speech recognition...');
+        recognition.start();
+      } catch (error) {
+        console.log('Recognition error:', error);
+        showVoiceError('Could not start listening. Try again.');
+      }
+    }
+
+    // Process voice input
+    async function processUserVoiceInput(transcript) {
+      console.log('Processing voice input:', transcript);
+      
+      // Add user message
+      const messagesDiv = document.getElementById('voiceCallMessages');
+      const userMsgDiv = document.createElement('div');
+      userMsgDiv.style.cssText = 'background: #667eea; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: right; font-size: 12px;';
+      userMsgDiv.innerHTML = `<strong>You:</strong> ${transcript}`;
+      messagesDiv.appendChild(userMsgDiv);
+      messagesDiv.parentElement.scrollTop = messagesDiv.parentElement.scrollHeight;
+
+      updateVoiceStatus('Processing your request...', '#667eea');
+
+      try {
+        // Send to AI API
+        const aiResponse = await fetch('/api/guide/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: transcript })
+        });
+
+        if (!aiResponse.ok) {
+          throw new Error(`API error: ${aiResponse.status}`);
+        }
+
+        const aiData = await aiResponse.json();
+        console.log('AI response:', aiData);
+
+        if (aiData.success && aiData.guide) {
+          // Add agent message
+          const agentMsgDiv = document.createElement('div');
+          agentMsgDiv.style.cssText = 'background: #f0f2f5; color: #333; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #667eea; font-size: 12px;';
+          agentMsgDiv.innerHTML = `<strong>🤖 Agent:</strong> ${aiData.guide}`;
+          messagesDiv.appendChild(agentMsgDiv);
+          messagesDiv.parentElement.scrollTop = messagesDiv.parentElement.scrollHeight;
+
+          // Generate voice for response
+          generateVoiceResponse(aiData.guide);
+        } else {
+          showVoiceError('Could not get response: ' + (aiData.error || 'Unknown error'));
+          updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+        }
+      } catch (error) {
+        console.error('Error processing voice input:', error);
+        showVoiceError('Error: ' + error.message);
+        updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+      }
+    }
+
+    // Generate voice response
+    async function generateVoiceResponse(text) {
+      try {
+        updateVoiceStatus('Generating voice response...', '#667eea');
+        console.log('Generating voice for:', text);
+
+        const voiceResponse = await fetch('/api/voice-guide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text })
+        });
+
+        if (!voiceResponse.ok) {
+          throw new Error(`Voice API error: ${voiceResponse.status}`);
+        }
+
+        const voiceData = await voiceResponse.json();
+        console.log('Voice response data:', voiceData);
+        console.log('Audio format:', voiceData.mimeType);
+        console.log('Generation method:', voiceData.method);
+
+        if (voiceData.success && voiceData.audio) {
+          console.log('Playing audio from:', voiceData.method);
+          
+          const audio = document.getElementById('voiceResponseAudio');
+          
+          // Set audio source with proper mime type
+          audio.src = voiceData.audio;
+          audio.type = voiceData.mimeType || 'audio/mpeg';
+          
+          // Ensure audio volume is set
+          audio.volume = 1.0;
+          
+          // Log when audio can play
+          audio.oncanplay = function() {
+            console.log('Audio ready to play');
+          };
+          
+          // Handle audio ended
+          audio.onended = function() {
+            console.log('Audio playback ended, ready for next message');
+            updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+          };
+          
+          // Handle audio errors
+          audio.onerror = function(err) {
+            console.error('Audio playback error:', err, audio.error);
+            updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+          };
+          
+          // Handle abort
+          audio.onabort = function() {
+            console.log('Audio playback aborted');
+          };
+          
+          // Attempt to play with proper error handling
+          const playPromise = audio.play();
+          
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                console.log('✓ Audio playback started successfully');
+                updateVoiceStatus('🔊 Listening to agent response...', '#667eea');
+              })
+              .catch(err => {
+                console.error('Audio playback failed:', err.message, err.name);
+                // If autoplay blocked, show user message
+                if (err.name === 'NotAllowedError') {
+                  console.log('Autoplay blocked - browser policy');
+                  updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+                } else if (err.name === 'NotSupportedError') {
+                  console.error('Audio format not supported');
+                  updateVoiceStatus('Audio format not supported. Ready to listen again.', '#4caf50');
+                } else {
+                  updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+                }
+              });
+          }
+        } else {
+          console.log('Voice generation status:', voiceData.success);
+          console.log('Voice error:', voiceData.error);
+          updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+        }
+      } catch (error) {
+        console.error('Error generating voice response:', error);
+        showVoiceError('Could not generate voice: ' + error.message);
+        updateVoiceStatus('Ready to listen. Tap to speak again.', '#4caf50');
+      }
+    }
+
+    // Update voice status
+    function updateVoiceStatus(message, color) {
+      const statusDiv = document.getElementById('voiceRecognitionStatus');
+      const statusText = document.getElementById('voiceRecognitionStatusText');
+      statusText.innerText = message;
+      statusDiv.style.display = 'block';
+      statusDiv.style.borderColor = color;
+      statusDiv.style.background = color === '#4caf50' ? '#e8f5e9' : (color === '#f56565' ? '#ffebee' : '#fff9e6');
+      statusText.style.color = color;
+      console.log('Status updated:', message, color);
+    }
+
+    // Show voice error
+    function showVoiceError(message) {
+      const errorDiv = document.getElementById('voiceError');
+      const errorText = document.getElementById('voiceErrorText');
+      errorText.innerText = message;
+      errorDiv.style.display = 'block';
+      console.error('Voice error:', message);
+    }
+
+    // End voice conversation
+    function endVoiceConversation() {
+      if (recognition && isListening) {
+        recognition.abort();
+      }
+      isVoiceCallActive = false;
+      isListening = false;
+      document.getElementById('recordVoiceBtn').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      document.getElementById('recordVoiceBtn').innerText = '🎤 Record';
+      updateVoiceStatus('Call ended. Start a new call to continue.', '#f56565');
+      
+      // Clear messages on end call
+      setTimeout(() => {
+        document.getElementById('voiceCallMessages').innerHTML = '';
+        document.getElementById('voiceNoMessages').style.display = 'block';
+        document.getElementById('voiceCallMessages').style.display = 'none';
+        document.getElementById('voiceRecognitionStatus').style.display = 'none';
+        document.getElementById('voiceError').style.display = 'none';
+      }, 2000);
+    }
+
+    // Generate Voice Guide
+    async function generateVoiceGuide() {
+      const destination = document.getElementById('destinationInput').value.trim();
+      const topic = document.getElementById('guideTopicInput').value.trim();
+
+      if (!destination) {
+        alert('Please enter a destination');
+        return;
+      }
+
+      const text = `Tell me about ${destination}. ${topic ? 'Specifically: ' + topic : 'What are the best places to visit?'}`;
+
+      const statusDiv = document.getElementById('generateStatus');
+      const statusText = document.getElementById('generateStatusText');
+      const audioDiv = document.getElementById('generatedAudio');
+      const audio = document.getElementById('guideAudio');
+      const generateBtn = event.target;
+
+      statusText.innerHTML = '⏳ Generating voice...';
+      statusDiv.style.display = 'block';
+      statusDiv.style.borderLeftColor = '#667eea';
+      audioDiv.style.display = 'none';
+      generateBtn.disabled = true;
+      generateBtn.style.opacity = '0.6';
+
+      try {
+        console.log('Sending request to /api/voice-guide', { text, destination });
+        
+        const response = await fetch('/api/voice-guide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text, country: destination })
+        });
+
+        console.log('Voice guide response:', response);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Voice guide data:', data);
+
+        if (data.success && data.audio) {
+          audio.src = data.audio;
+          audioDiv.style.display = 'block';
+          statusText.innerHTML = '✅ Voice ready! Click play →';
+          statusDiv.style.borderLeftColor = '#48bb78';
+          
+          // Auto-play
+          setTimeout(() => {
+            audio.play().catch(err => {
+              console.warn('Auto-play prevented, user must click play button');
+            });
+          }, 500);
+        } else if (data.success) {
+          // Success but maybe demo audio
+          console.log('Partial success:', data);
+          audio.src = data.audio || 'data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==';
+          audioDiv.style.display = 'block';
+          statusText.innerHTML = '✅ Voice generated (demo)';
+          statusDiv.style.borderLeftColor = '#48bb78';
+        } else {
+          const errorMsg = data.error || data.message || 'Voice generation failed';
+          statusText.innerHTML = '⚠️ ' + errorMsg;
+          statusDiv.style.borderLeftColor = '#ffc107';
+          console.error('Generation error:', data);
+        }
+      } catch (error) {
+        console.error('Voice generation error:', error);
+        statusText.innerHTML = '❌ Error: ' + error.message;
+        statusDiv.style.borderLeftColor = '#f56565';
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.style.opacity = '1';
+      }
+    }
+
+    // Initialize tabs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set first tab active
+      const firstTab = document.querySelector('.voice-tab-btn');
+      if (firstTab) {
+        firstTab.style.borderBottomColor = '#667eea';
+        firstTab.style.color = '#667eea';
+      }
+    });
+  </script>
 
 </body>
 </html>
